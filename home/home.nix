@@ -22,18 +22,12 @@ in
   xdg.enable = true;
 
   # Clones or fast-forwards private sibling repos at every `nixos-rebuild switch`.
-  # GIT_CONFIG_COUNT overrides git config inline so gh auth is used without touching ~/.gitconfig.
-  # url.insteadOf rewrites ssh:// to https:// so the clone works without an SSH agent.
   home.activation.syncPrivate = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export GIT_CONFIG_COUNT=2
-    export GIT_CONFIG_KEY_0="credential.helper"
-    export GIT_CONFIG_VALUE_0="${pkgs.gh}/bin/gh auth git-credential"
-    export GIT_CONFIG_KEY_1="url.https://github.com/.insteadOf"
-    export GIT_CONFIG_VALUE_1="git@github.com:"
+    export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
     sync() {
       local repo=$1 dest=$2
       if [ ! -d "$dest" ]; then
-        $DRY_RUN_CMD ${pkgs.git}/bin/git clone "https://github.com/crivotz/$repo.git" "$dest"
+        $DRY_RUN_CMD ${pkgs.git}/bin/git clone "git@github.com:crivotz/$repo.git" "$dest"
       else
         $DRY_RUN_CMD ${pkgs.git}/bin/git -C "$dest" pull --ff-only --quiet || true
       fi
