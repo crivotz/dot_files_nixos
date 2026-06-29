@@ -90,6 +90,8 @@
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
 
+  services.upower.enable = true;
+
   # Primary user account.
   users.users.mauro = {
     isNormalUser = true;
