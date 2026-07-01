@@ -172,6 +172,8 @@
         { command = "syncthing serve --no-browser --logfile=default"; always = false; }
         # Feeds Wayland clipboard events into cliphist for history access via Mod+v.
         { command = "wl-paste --watch cliphist store"; always = false; }
+        # Polkit authentication agent: shows the password dialog for privileged operations.
+        { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; always = false; }
         # dms is started by its own systemd service (programs.dms-shell.systemd.enable = true).
         # For manual startup instead: { command = "dms run"; always = false; }
       ];

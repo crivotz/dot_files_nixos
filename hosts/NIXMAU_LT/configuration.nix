@@ -39,6 +39,14 @@
   # Unlock the GNOME keyring on login so apps using libsecret work without a desktop environment.
   security.pam.services.greetd.enableGnomeKeyring = true;
 
+  # Hyprland — available as an alternative session alongside Sway.
+  # Per selezionarlo al login: cambia il greeter (vedi commento dms-greeter sopra) o avvia
+  # `Hyprland` manualmente da una sessione TTY.
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
+  };
+
   # Enables Sway system-wide with the GTK wrapper (needed for GTK file dialogs, app theming).
   # Extra packages are Wayland utilities that don't fit in home.packages (they need system-level access).
   programs.sway = {
@@ -69,11 +77,23 @@
     enableAudioWavelength = false;
   };
 
-  # XDG portals: required for screen sharing (wlr portal) and GTK file pickers (gtk portal).
+  # XDG portals: wlr per Sway (screen sharing), hyprland per Hyprland, gtk per file picker.
   xdg.portal = {
     enable = true;
     wlr.enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.xdg-desktop-portal-hyprland
+    ];
+    config = {
+      common.default = [ "gtk" ];
+      hyprland = {
+        default = [ "hyprland" "gtk" ];
+        "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+        "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+        "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+      };
+    };
   };
 
   # rtkit grants real-time scheduling priority to PipeWire, preventing audio glitches.
@@ -105,6 +125,7 @@
       "lp"           # printing
       "lpadmin"      # manage printers via CUPS web UI
       "input"        # raw input device access (needed by some Wayland tools)
+      "plugdev"      # unprivileged USB device access via udisks2
     ];
     shell = pkgs.zsh;
   };
@@ -157,6 +178,26 @@
   # CUPS printing with foomatic-db for generic PostScript/PCL driver support.
   services.printing.enable = true;
   services.printing.drivers = [ pkgs.foomatic-db ];
+
+  # Avahi enables mDNS (.local hostnames) and automatic printer discovery for CUPS.
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+
+  # udisks2 is the system daemon that lets unprivileged users mount removable drives.
+  # udiskie (started per-user by home-manager) calls udisks2 for automounting.
+  services.udisks2.enable = true;
+
+  # gvfs provides trash, network shares (SMB/WebDAV), and MTP (Android) to Nautilus.
+  services.gvfs.enable = true;
+
+  # Required for GTK theme/font/cursor settings to persist across sessions.
+  programs.dconf.enable = true;
+
+  # power-profiles-daemon switches between power-saver/balanced/performance on D-Bus.
+  services.power-profiles-daemon.enable = true;
 
   # Polkit is required by 1Password GUI and various Wayland/system tools.
   security.polkit.enable = true;

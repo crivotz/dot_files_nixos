@@ -9,6 +9,7 @@ in
     ./programs/tmux.nix
     ./programs/git.nix
     ./programs/sway-desktop.nix
+    ./programs/hyprland-desktop.nix
     ./packages.nix
     ./services/syncthing.nix
   ];
@@ -83,4 +84,7 @@ in
 
   # Allows `home-manager` CLI to manage itself without a NixOS integration.
   programs.home-manager.enable = true;
+
+  # Automounts USB drives and removable media via udisks2 (system service abilitato in configuration.nix).
+  services.udiskie.enable = true;
 }

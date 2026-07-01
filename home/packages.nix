@@ -41,6 +41,7 @@
     zoxide
     atuin
     prettyping
+    yazi            # file manager TUI (wrapper con cwd persistence in zsh.nix)
 
     # Terminale
     ghostty
@@ -63,6 +64,7 @@
     # Produttività desktop
     brave
     nautilus
+    gnome-disk-utility  # GUI per gestire dischi e drive USB
     papirus-icon-theme
     filezilla
     gimp

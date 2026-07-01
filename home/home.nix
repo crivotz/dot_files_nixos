@@ -9,6 +9,7 @@ in
     ./programs/tmux.nix
     ./programs/git.nix
     ./programs/sway.nix
+    ./programs/hyprland.nix
     ./packages.nix
     ./services/syncthing.nix
   ];
@@ -86,6 +87,19 @@ in
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
+    cursorTheme = {
+      name = "catppuccin-mocha-dark-cursors";
+      package = pkgs.catppuccin-cursors.mochaDark;
+      size = 24;
+    };
+  };
+
+  home.pointerCursor = {
+    name = "catppuccin-mocha-dark-cursors";
+    package = pkgs.catppuccin-cursors.mochaDark;
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
   };
 
   # Allows `home-manager` CLI to manage itself without a NixOS integration.
@@ -97,4 +111,7 @@ in
       AddKeysToAgent yes
     '';
   };
+
+  # Automounts USB drives and removable media via udisks2 (system service abilitato in configuration.nix).
+  services.udiskie.enable = true;
 }

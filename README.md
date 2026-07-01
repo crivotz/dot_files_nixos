@@ -1,6 +1,6 @@
 # NixOS Configuration
 
-Configurazione NixOS con Home Manager, Flakes, Sway (Wayland) e devenv per Ruby on Rails.
+Configurazione NixOS con Home Manager, Flakes, Sway + Hyprland (Wayland) e devenv per Ruby on Rails.
 Migrazione da Debian: zinit → pacchetti nix, asdf → devenv, Mason → LSP via nix.
 
 ## Struttura
@@ -8,20 +8,35 @@ Migrazione da Debian: zinit → pacchetti nix, asdf → devenv, Mason → LSP vi
 ```
 dot_files_nixos/
 ├── flake.nix                      # nixpkgs unstable, home-manager, neovim-nightly, dms
-├── hosts/nixos/
-│   ├── configuration.nix          # sistema: boot, utente, servizi, font, SSD, VPN
-│   └── hardware-configuration.nix # generato dall'installer (non in git)
+├── hosts/
+│   ├── NIXMAU/
+│   │   └── configuration.nix      # desktop: boot, utente, servizi, font, SSD, VPN
+│   └── NIXMAU_LT/
+│       └── configuration.nix      # laptop: stessa base, hardware diverso
+│   (hardware-configuration.nix generato dall'installer, non in git)
 ├── home/
-│   ├── home.nix                   # home-manager entry point + symlink dotfiles
-│   ├── packages.nix               # pacchetti utente (sostituisce zinit downloads)
-│   └── programs/
-│       ├── zsh.nix                # zsh + plugin (sostituisce zinit)
-│       ├── neovim.nix             # neovim nightly + LSP via nix (Mason disabilitato)
-│       ├── tmux.nix               # tmux + plugin
-│       ├── git.nix                # git + gh CLI
-│       └── sway.nix               # sway WM + keybinding dms
+│   ├── home.nix                   # home-manager entry point + sync dotfiles
+│   ├── home-desktop.nix           # override/extra per desktop
+│   ├── packages.nix               # pacchetti utente
+│   ├── programs/
+│   │   ├── zsh.nix                # zsh + plugin
+│   │   ├── neovim.nix             # neovim nightly + LSP via nix (Mason disabilitato)
+│   │   ├── tmux.nix               # tmux + plugin
+│   │   ├── git.nix                # git + gh CLI
+│   │   ├── sway.nix               # sway WM + keybinding (laptop)
+│   │   ├── sway-desktop.nix       # sway WM + keybinding (desktop)
+│   │   ├── hyprland.nix           # hyprland WM + keybinding (laptop)
+│   │   └── hyprland-desktop.nix   # hyprland WM + keybinding (desktop)
 │   └── services/
 │       └── syncthing.nix          # syncthing servizio utente
+├── config/                        # file di configurazione copiati in ~/.config
+│   ├── bat/themes/                # temi bat (arctic, rose-pine, tokyonight)
+│   ├── DankMaterialShell/         # settings DMS
+│   ├── eza/                       # temi eza
+│   ├── ghostty/                   # config ghostty + shader GLSL
+│   ├── lazygit/                   # config lazygit
+│   ├── ruby/                      # gemrc, irbrc, default-gems
+│   └── p10k.zsh                   # powerlevel10k prompt
 └── devenv-example/
     ├── devenv.nix                 # template per progetti Ruby on Rails
     └── .envrc                     # attivazione automatica con direnv
@@ -81,7 +96,7 @@ echo "lua/plugins/nix-mason-override.lua" >> ~/.nv-ide/.gitignore
 
 ```bash
 sudo reboot
-# greetd/tuigreet appare → accedi → sway si avvia
+# dms-greeter appare → seleziona Sway o Hyprland → accedi
 ```
 
 ## Aggiornamento sistema
@@ -116,6 +131,29 @@ sudo nix-collect-garbage -d                  # elimina vecchie generazioni e lib
 ```
 
 I pacchetti rimossi restano in `/nix/store` per permettere rollback. Il garbage collector li elimina definitivamente.
+
+### Rollback (tornare alla versione precedente)
+
+```bash
+sudo nixos-rebuild switch --rollback
+```
+
+Se il sistema non si avvia, seleziona la generazione precedente direttamente dal menu del boot loader (systemd-boot) al riavvio.
+
+### Vedere le generazioni disponibili
+
+```bash
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+```
+
+### Cancellare le generazioni vecchie
+
+```bash
+sudo nix-collect-garbage -d                  # elimina tutte le generazioni tranne quella attiva
+sudo nix-collect-garbage --delete-older-than 7d   # tieni solo le ultime 7 giorni
+```
+
+Dopo la pulizia non è più possibile fare rollback alle generazioni cancellate.
 
 ## Ruby on Rails multi-versione con devenv
 
@@ -162,6 +200,27 @@ Mason è disabilitato: i LSP/formatter sono installati via nix e disponibili nel
 | Linter Shell | `shellcheck` |
 
 Per aggiungere un LSP: modifica `extraPackages` in `home/programs/neovim.nix` e rebuilda.
+
+## Hyprland
+
+Hyprland è disponibile come sessione alternativa a Sway, selezionabile dal dms-greeter.
+Configurazione in `home/programs/hyprland.nix` (laptop) e `hyprland-desktop.nix` (desktop).
+
+Le keybinding sono identiche a Sway. Le uniche differenze:
+- Layout: `dwindle` (invece di tiling i3-style) con submap resize (`SUPER+R`)
+- Screenshot: `grim -g "$(slurp)"` al posto di `grimshot`
+- dms si avvia comunque via systemd e gestisce bar, spotlight, audio, luminosità
+
+### Monitor Hyprland
+
+Aggiorna la sezione `monitor` in `hyprland.nix` in base all'hardware.
+Usa `hyprctl monitors` per identificare i nomi dei connettori.
+
+```bash
+hyprctl monitors        # lista monitor connessi con nomi e risoluzioni
+hyprctl activewindow    # info finestra attiva (utile per window rules)
+hyprctl reload          # ricarica config senza riavviare (SUPER+SHIFT+C)
+```
 
 ## DankMaterialShell (dms)
 
