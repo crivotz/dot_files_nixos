@@ -34,6 +34,7 @@
     gh           # GitHub CLI
     git-ftp
     overmind     # process manager (Procfile)
+    devenv       # ambienti di sviluppo per-progetto (Ruby, Node, Postgres, Redis)
     netwatch
 
     # Shell utilities
