@@ -1,5 +1,9 @@
 # NixOS Configuration
 
+## TODO
+
+- [ ] Migration lua hyprland
+
 Configurazione NixOS con Home Manager, Flakes, Sway + Hyprland (Wayland) e devenv per Ruby on Rails.
 Migrazione da Debian: zinit → pacchetti nix, asdf → devenv, Mason → LSP via nix.
 

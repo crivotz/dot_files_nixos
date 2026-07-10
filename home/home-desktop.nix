@@ -44,6 +44,10 @@ in
     if [ ! -e "$HOME/.config/nvim" ]; then
       $DRY_RUN_CMD ln -s "$HOME/.nv-ide" "$HOME/.config/nvim"
     fi
+    if [ ! -L "$HOME/.config/tmuxp" ]; then
+      $DRY_RUN_CMD rm -rf "$HOME/.config/tmuxp"
+      $DRY_RUN_CMD ln -s "$HOME/.nubem_dot_files/tmuxp" "$HOME/.config/tmuxp"
+    fi
   '';
 
   # All entries use mkOutOfStoreSymlink so the files are mutable live-links into the
@@ -70,8 +74,7 @@ in
     ".gitconfig".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/gitconfig_7040";
     ".zsh_aliases".source    = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/zsh_aliases";
     ".nubem_env".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/nubem_env";
-    # Tmuxp session layouts (named sessions for common projects)
-    ".config/tmuxp".source   = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/tmuxp";
+    # ~/.config/tmuxp symlink is created by the activation script above
   };
 
   # Automatically loads/unloads the Nix dev environment defined in .envrc when entering a project dir.
@@ -80,6 +83,14 @@ in
     enable = true;
     enableZshIntegration = true;
     nix-direnv.enable = true;
+  };
+
+  programs.ssh = {
+    enable = true;
+    extraConfig = ''
+      AddKeysToAgent yes
+      IdentityAgent ~/.1password/agent.sock
+    '';
   };
 
   # Allows `home-manager` CLI to manage itself without a NixOS integration.
