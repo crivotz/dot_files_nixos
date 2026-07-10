@@ -12,6 +12,7 @@
     croc
     graphviz
     plocate
+    jq             # richiesto da core/claude/statusline.sh
     gnupg
     gnumake
     html-tidy
