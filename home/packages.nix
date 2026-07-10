@@ -65,6 +65,8 @@
     brave
     nautilus
     gnome-disk-utility  # GUI per gestire dischi e drive USB
+    gnome-keyring       # Secret Service API (libsecret) per Brave, VSCode, ecc.
+    xournalpp           # note e annotazioni PDF
     papirus-icon-theme
     filezilla
     gimp

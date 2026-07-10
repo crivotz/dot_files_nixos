@@ -38,6 +38,10 @@
       }
     ];
 
+    shellAliases = {
+      df = "duf";
+    };
+
     history = {
       # Large buffer shared across all sessions; timestamps stored (extended = true).
       size = 290000;

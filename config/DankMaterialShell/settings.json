@@ -5,7 +5,7 @@
   "registryThemeVariants": {},
   "matugenScheme": "scheme-tonal-spot",
   "runUserMatugenTemplates": true,
-  "matugenTargetMonitor": "DP-1",
+  "matugenTargetMonitor": "eDP-1",
   "popupTransparency": 1,
   "dockTransparency": 1,
   "widgetBackgroundColor": "sch",
@@ -134,7 +134,7 @@
   "workspaceAppIconSizeOffset": 0,
   "groupWorkspaceApps": true,
   "workspaceFollowFocus": true,
-  "showOccupiedWorkspacesOnly": true,
+  "showOccupiedWorkspacesOnly": false,
   "reverseScrolling": false,
   "dwlShowAllTags": false,
   "workspaceColorMode": "default",
@@ -403,8 +403,12 @@
       "position": 0,
       "screenPreferences": [
         {
-          "name": "DP-1",
-          "model": "LG HDR 4K"
+          "name": "eDP-1",
+          "model": "BOE 0x091D"
+        },
+        {
+          "name": "DP-3",
+          "model": "DELL 1909W"
         }
       ],
       "showOnLastDisplay": true,

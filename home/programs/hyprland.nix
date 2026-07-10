@@ -14,14 +14,14 @@
       # DP-3 è ruotato 270° (portrait), larghezza effettiva = 900px.
       # Run `hyprctl monitors` o `wdisplays` per confermare i nomi dei connettori.
       monitor = [
-        "DP-3,1440x900@60,0x0,1,transform,3"
+        "DP-3,1440x900@60,0x0,1,transform,1"
         "DP-4,1600x900@60,900x0,1"
         "DP-5,1600x900@60,2500x0,1"
         ",preferred,auto,1"
       ];
 
       workspace = [
-        "1,monitor:eDP-1"
+        "1,monitor:DP-3"
         "2,monitor:DP-4"
         "3,monitor:DP-5"
       ];
@@ -84,6 +84,8 @@
         "syncthing serve --no-browser --logfile=default"
         "wl-paste --watch cliphist store"
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+        # Specchio del bindswitch --reload di Sway: disabilita eDP-1 se il coperchio è già chiuso all'avvio.
+        "bash -c 'cat /proc/acpi/button/lid/*/state 2>/dev/null | grep -q closed && hyprctl keyword monitor \"eDP-1,disable\"'"
       ];
 
       bind = [

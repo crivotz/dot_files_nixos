@@ -4,6 +4,7 @@
 
   # Boot: systemd-boot on EFI; canTouchEfiVariables lets the loader update the EFI boot entry.
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 3;
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "NIXMAU_LT";
@@ -265,10 +266,9 @@
       ];
     };
     gc = {
-      # Auto-delete generations older than 14 days to keep the store from growing unbounded.
       automatic = true;
       dates = "weekly";
-      options = "--delete-older-than 14d";
+      options = "--keep-last 3 --delete-old";
     };
   };
 
