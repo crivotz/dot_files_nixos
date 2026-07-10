@@ -62,6 +62,8 @@ in
     ".config/DankMaterialShell/settings.json" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/DankMaterialShell/settings.json"; force = true; };
     # Bat custom syntax-highlighting themes (must run `bat cache --build` after changes)
     ".config/bat/themes".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/bat/themes";
+    # Claude Code statusline script (model, cwd/branch, context + rate-limit usage)
+    ".claude/statusline.sh" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/claude/statusline.sh"; force = true; };
     # Ruby: IRB config, gem defaults, and rbenv default-gems/npm-packages lists
     ".irbrc".source          = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/irbrc";
     ".gemrc".source          = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/gemrc";
