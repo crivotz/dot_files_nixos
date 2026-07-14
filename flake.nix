@@ -2,7 +2,7 @@
   description = "NixOS configuration - Crivotz";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
 
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -73,7 +73,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
-              extraSpecialArgs = { inherit pkgs; stateVersion = "26.11"; };
+              extraSpecialArgs = { inherit pkgs; stateVersion = "26.05"; };
               users.mauro = import ./home/home-desktop.nix;
             };
           })
