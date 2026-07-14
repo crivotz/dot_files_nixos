@@ -5,7 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
 
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-26.05";
       # Pins home-manager to the same nixpkgs revision, preventing a second nixpkgs copy in the closure.
       inputs.nixpkgs.follows = "nixpkgs";
     };
