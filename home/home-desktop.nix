@@ -23,25 +23,20 @@ in
   xdg.enable = true;
 
   # Clones or fast-forwards private sibling repos at every `nixos-rebuild switch`.
-  # GIT_CONFIG_COUNT overrides git config inline so gh auth is used without touching ~/.gitconfig.
-  # url.insteadOf rewrites ssh:// to https:// so the clone works without an SSH agent.
   home.activation.syncPrivate = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export GIT_CONFIG_COUNT=2
-    export GIT_CONFIG_KEY_0="credential.helper"
-    export GIT_CONFIG_VALUE_0="${pkgs.gh}/bin/gh auth git-credential"
-    export GIT_CONFIG_KEY_1="url.https://github.com/.insteadOf"
-    export GIT_CONFIG_VALUE_1="git@github.com:"
+    export GIT_SSH_COMMAND="${pkgs.openssh}/bin/ssh -i $HOME/.ssh/id_ed25519 -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
     sync() {
       local repo=$1 dest=$2
       if [ ! -d "$dest" ]; then
-        $DRY_RUN_CMD ${pkgs.git}/bin/git clone "https://github.com/crivotz/$repo.git" "$dest"
+        $DRY_RUN_CMD ${pkgs.git}/bin/git clone "git@github.com:crivotz/$repo.git" "$dest"
       else
         $DRY_RUN_CMD ${pkgs.git}/bin/git -C "$dest" pull --ff-only --quiet || true
       fi
     }
     sync nubem_dot_files "$HOME/.nubem_dot_files"
     sync nv-ide          "$HOME/.nv-ide"
-    if [ ! -e "$HOME/.config/nvim" ]; then
+    if [ ! -L "$HOME/.config/nvim" ]; then
+      $DRY_RUN_CMD rm -rf "$HOME/.config/nvim"
       $DRY_RUN_CMD ln -s "$HOME/.nv-ide" "$HOME/.config/nvim"
     fi
     if [ ! -L "$HOME/.config/tmuxp" ]; then
@@ -63,18 +58,22 @@ in
     ".config/eza".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/eza";
     # Lazygit UI config
     ".config/lazygit/config.yml" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/lazygit/config.yml"; force = true; };
+    # DankMaterialShell widget settings (bar layout, colors, etc.)
+    ".config/DankMaterialShell/settings.json" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/DankMaterialShell/settings.json"; force = true; };
     # Bat custom syntax-highlighting themes (must run `bat cache --build` after changes)
     ".config/bat/themes".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/bat/themes";
+    # Claude Code statusline script (model, cwd/branch, context + rate-limit usage)
+    ".claude/statusline.sh" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/claude/statusline.sh"; force = true; };
     # Ruby: IRB config, gem defaults, and rbenv default-gems/npm-packages lists
     ".irbrc".source          = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/irbrc";
     ".gemrc".source          = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/gemrc";
     ".default-gems".source   = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/default-gems";
     ".default-npm-packages".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/default-npm-packages";
-    # Private git config (desktop variant — gitconfig_7040), shell aliases, and env vars
+    # Private git config, shell aliases, and env vars (sourced from nubem_dot_files cloned by the activation above)
     ".gitconfig".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/gitconfig_7040";
     ".zsh_aliases".source    = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/zsh_aliases";
     ".nubem_env".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/nubem_env";
-    # ~/.config/tmuxp symlink is created by the activation script above
+    # ~/.config/nvim and ~/.config/tmuxp symlinks are created by the activation script above
   };
 
   # Automatically loads/unloads the Nix dev environment defined in .envrc when entering a project dir.
@@ -85,6 +84,31 @@ in
     nix-direnv.enable = true;
   };
 
+  # GTK icon theme for Wayland apps (file picker, calculators, etc.)
+  gtk = {
+    enable = true;
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    cursorTheme = {
+      name = "catppuccin-mocha-dark-cursors";
+      package = pkgs.catppuccin-cursors.mochaDark;
+      size = 24;
+    };
+  };
+
+  home.pointerCursor = {
+    name = "catppuccin-mocha-dark-cursors";
+    package = pkgs.catppuccin-cursors.mochaDark;
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
+  # Allows `home-manager` CLI to manage itself without a NixOS integration.
+  programs.home-manager.enable = true;
+
   programs.ssh = {
     enable = true;
     extraConfig = ''
@@ -92,9 +116,6 @@ in
       IdentityAgent ~/.1password/agent.sock
     '';
   };
-
-  # Allows `home-manager` CLI to manage itself without a NixOS integration.
-  programs.home-manager.enable = true;
 
   # Automounts USB drives and removable media via udisks2 (system service abilitato in configuration.nix).
   services.udiskie.enable = true;

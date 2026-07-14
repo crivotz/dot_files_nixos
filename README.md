@@ -283,3 +283,9 @@ gcloud config set project <project-id>
 atuin login
 atuin sync
 ```
+
+### GitHub CLI (gh): authenticate
+```bash
+gh auth login --web
+```
+Don't pass `--git-protocol ssh`: it's already set declaratively in `home/programs/git.nix` (`programs.gh.settings.git_protocol`), which home-manager symlinks read-only into `~/.config/gh/config.yml`. Passing that flag makes `gh` try to rewrite the file and fail with `read-only file system` — harmless noise, login still succeeds (the token is saved in the writable `hosts.yml`), but skip the flag to avoid the error.

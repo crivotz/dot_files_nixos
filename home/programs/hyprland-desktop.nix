@@ -1,9 +1,13 @@
 { pkgs, ... }:
 {
+  # Force-overwrite hyprland.conf se esiste già come file non gestito da HM.
+  xdg.configFile."hypr/hyprland.conf".force = true;
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
     systemd.enable = true;
+    configType = "hyprlang";
 
     settings = {
       # Desktop monitor layout — mirrors sway-desktop.nix output config.
