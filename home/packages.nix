@@ -17,6 +17,7 @@
     gnumake
     html-tidy
     unrar          # unfree, richiede config.allowUnfree = true (già in flake.nix)
+    rsync
 
     # CLI moderni (sostituiscono zinit downloads)
     eza

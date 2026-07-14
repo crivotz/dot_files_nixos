@@ -25,26 +25,27 @@
   outputs = { self, nixpkgs, home-manager, neovim-nightly-overlay, dms, ... }:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
+      # Shared nixpkgs.* settings applied identically on both hosts, via the ordinary
+      # nixpkgs module (no specialArgs.pkgs, so nixpkgs.config/overlays keep working
+      # and hardware-configuration.nix can still set nixpkgs.hostPlatform itself).
+      nixpkgsModule = {
         # Required for vscode, unrar, and other non-free packages in packages.nix.
-        config.allowUnfree = true;
+        nixpkgs.config.allowUnfree = true;
         # Injects the neovim nightly build so `pkgs.neovim` resolves to nightly everywhere.
-        overlays = [ neovim-nightly-overlay.overlays.default ];
+        nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
       };
     in
     {
       # Laptop (NIXMAU_LT)
       nixosConfigurations.NIXMAU_LT = nixpkgs.lib.nixosSystem {
         inherit system;
-        # Passes the pre-built pkgs set (with overlays and allowUnfree) into all NixOS modules.
-        specialArgs = { inherit pkgs; };
         modules = [
+          nixpkgsModule
           ./hosts/NIXMAU_LT/configuration.nix
           dms.nixosModules.default
           dms.nixosModules.greeter
           home-manager.nixosModules.home-manager
-          {
+          ({ pkgs, ... }: {
             home-manager = {
               # Share nixpkgs with the NixOS system to avoid building packages twice.
               useGlobalPkgs = true;
@@ -55,27 +56,27 @@
               extraSpecialArgs = { inherit pkgs; stateVersion = "25.11"; };
               users.mauro = import ./home/home.nix;
             };
-          }
+          })
         ];
       };
 
       # Desktop (NIXMAU)
       nixosConfigurations.NIXMAU = nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit pkgs; };
         modules = [
+          nixpkgsModule
           ./hosts/NIXMAU/configuration.nix
           dms.nixosModules.default
           dms.nixosModules.greeter
           home-manager.nixosModules.home-manager
-          {
+          ({ pkgs, ... }: {
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
               extraSpecialArgs = { inherit pkgs; stateVersion = "25.11"; };
               users.mauro = import ./home/home-desktop.nix;
             };
-          }
+          })
         ];
       };
 

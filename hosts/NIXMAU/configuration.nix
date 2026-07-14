@@ -25,6 +25,9 @@
     compositor.name = "sway";
   };
   services.greetd.settings.default_session.user = "greeter";
+  # Registers gnome-keyring's D-Bus service (org.freedesktop.secrets) so apps like VSCode/Brave
+  # can find a Secret Service to store credentials, since there's no GNOME session to start it.
+  services.gnome.gnome-keyring.enable = true;
   # Unlock the GNOME keyring on login so apps using libsecret work without a desktop environment.
   security.pam.services.greetd.enableGnomeKeyring = true;
 
@@ -32,6 +35,7 @@
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
+    withUWSM = true;
   };
 
   # Enables Sway system-wide with the GTK wrapper (needed for GTK file dialogs, app theming).
@@ -85,7 +89,7 @@
   };
 
   # GNOME — available as an additional session for other users alongside Sway/Hyprland.
-  services.xserver.desktopManager.gnome.enable = true;
+  services.desktopManager.gnome.enable = true;
 
   # rtkit grants real-time scheduling priority to PipeWire, preventing audio glitches.
   security.rtkit.enable = true;

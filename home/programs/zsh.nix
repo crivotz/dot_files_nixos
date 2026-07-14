@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   programs.zsh = {
     enable = true;
     # Keep home dir clean: zsh reads rc files from here instead of ~/.zshrc, ~/.zprofile, etc.
-    dotDir = ".config/zsh";
+    dotDir = "${config.home.homeDirectory}/.config/zsh";
 
     # Plugin (sostituiscono zinit)
     antidote = {

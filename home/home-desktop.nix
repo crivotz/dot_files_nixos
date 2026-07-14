@@ -58,8 +58,8 @@ in
     ".config/eza".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/eza";
     # Lazygit UI config
     ".config/lazygit/config.yml" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/lazygit/config.yml"; force = true; };
-    # DankMaterialShell widget settings (bar layout, colors, etc.)
-    ".config/DankMaterialShell/settings.json" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/DankMaterialShell/settings.json"; force = true; };
+    # DankMaterialShell widget settings (bar layout, colors, etc.) — per-host file (desktop monitors: DP-1, DP-2)
+    ".config/DankMaterialShell/settings.json" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/DankMaterialShell/settings-desktop.json"; force = true; };
     # Bat custom syntax-highlighting themes (must run `bat cache --build` after changes)
     ".config/bat/themes".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/bat/themes";
     # Claude Code statusline script (model, cwd/branch, context + rate-limit usage)
@@ -99,6 +99,7 @@ in
   };
 
   home.pointerCursor = {
+    enable = true;
     name = "catppuccin-mocha-dark-cursors";
     package = pkgs.catppuccin-cursors.mochaDark;
     size = 24;
@@ -111,10 +112,11 @@ in
 
   programs.ssh = {
     enable = true;
-    extraConfig = ''
-      AddKeysToAgent yes
-      IdentityAgent ~/.1password/agent.sock
-    '';
+    enableDefaultConfig = false;
+    settings."*" = {
+      AddKeysToAgent = "yes";
+      IdentityAgent = "~/.1password/agent.sock";
+    };
   };
 
   # Automounts USB drives and removable media via udisks2 (system service abilitato in configuration.nix).
