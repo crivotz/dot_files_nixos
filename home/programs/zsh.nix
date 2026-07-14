@@ -36,6 +36,16 @@
         src = pkgs.zsh-vi-mode;
         file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
       }
+      {
+        name = "enhancd";
+        src = pkgs.fetchFromGitHub {
+          owner = "babarot";
+          repo = "enhancd";
+          rev = "5afb4eb6ba36c15821de6e39c0a7bb9d6b0ba415";
+          hash = "sha256-pKQbwiqE0KdmRDbHQcW18WfxyJSsKfymWt/TboY2iic=";
+        };
+        file = "init.sh";
+      }
     ];
 
     shellAliases = {

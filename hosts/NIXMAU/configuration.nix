@@ -124,6 +124,18 @@
     shell = pkgs.zsh;
   };
 
+  users.users.andrea = {
+    isNormalUser = true;
+    description = "Andrea";
+    extraGroups = [ "networkmanager" "audio" "video" ];
+  };
+
+  users.users.laura = {
+    isNormalUser = true;
+    description = "Laura";
+    extraGroups = [ "networkmanager" "audio" "video" ];
+  };
+
   # Must be true so the zsh module generates /etc/zshrc and zsh is available system-wide.
   programs.zsh.enable = true;
 
