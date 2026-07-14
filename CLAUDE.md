@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-NixOS system configuration using Flakes + Home Manager. Manages a single `x86_64-linux` host (`nixos`).
+NixOS system configuration using Flakes + Home Manager. Manages two `x86_64-linux` hosts:
+- **NIXMAU** — desktop
+- **NIXMAU_LT** — laptop
 
 ## Key commands
 
@@ -12,6 +14,7 @@ Apply `.nix` changes (no package updates, fast):
 ```bash
 sudo nixos-rebuild switch --flake . --impure
 ```
+The host is auto-detected from the machine's hostname (`networking.hostName`).
 
 Update all flake inputs then rebuild (equivalent to `apt upgrade`):
 ```bash
@@ -32,14 +35,16 @@ sudo nixos-rebuild dry-activate --flake .
 ## Architecture
 
 ```
-flake.nix                          # inputs + single nixosConfiguration "nixos"
-hosts/nixos/configuration.nix      # system-level: boot, services, users, fonts, nix settings
-hosts/nixos/hardware-configuration.nix  # machine-specific, NOT in git
-home/home.nix                      # home-manager entry point; activation clones/pulls sibling repos
-home/packages.nix                  # user packages (GUI apps, CLI tools, claude-code, etc.)
-home/programs/                     # per-program home-manager config (zsh, neovim, tmux, git, sway)
-home/services/syncthing.nix        # syncthing user service
-devenv-example/devenv.nix          # copy-paste template for Ruby on Rails projects
+flake.nix                              # inputs + nixosConfigurations for NIXMAU and NIXMAU_LT
+hosts/NIXMAU/configuration.nix         # desktop: system-level config (boot, services, users, fonts)
+hosts/NIXMAU_LT/configuration.nix      # laptop: same structure, adds power management + backlight
+config/                                # dotfiles symlinked into $HOME via home.file (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, claude)
+home/home.nix                          # home-manager entry point for laptop
+home/home-desktop.nix                  # home-manager entry point for desktop
+home/packages.nix                      # user packages shared between both hosts
+home/programs/                         # per-program config; desktop variants use -desktop.nix suffix
+home/services/syncthing.nix            # syncthing user service
+devenv-example/devenv.nix              # copy-paste template for Ruby on Rails projects
 ```
 
 ### Flake inputs
@@ -53,11 +58,21 @@ devenv-example/devenv.nix          # copy-paste template for Ruby on Rails proje
 
 ### Sibling repos auto-synced at rebuild
 
-`home.activation.syncDotfiles` in `home/home.nix` clones (first run) or `git pull --ff-only` (subsequent runs):
-- `crivotz/dot_files` → `~/.dot_files` (this repo's dotfiles counterpart)
-- `crivotz/nubem_dot_files` → `~/.nubem_dot_files` (private aliases/env)
+`home.activation.syncPrivate` clones (first run) or `git pull --ff-only` (subsequent runs):
+- `crivotz/nubem_dot_files` → `~/.nubem_dot_files` (private: gitconfig, zsh_aliases, nubem_env, tmuxp)
 - `crivotz/nv-ide` → `~/.nv-ide` (Neovim/LazyVim config)
-- `crivotz/bin` → `~/.bin-various`
+
+All other dotfiles (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, claude statusline) live in `config/` inside this repo and are symlinked via `home.file`.
+
+### Desktop vs laptop differences
+
+| Feature | NIXMAU (desktop) | NIXMAU_LT (laptop) |
+|---|---|---|
+| GNOME | enabled (for other users) | no |
+| Power profiles | no | `power-profiles-daemon` |
+| Backlight | DDC/CI via dms | `brightnessctl` |
+| Sway config | `sway-desktop.nix` | `sway.nix` |
+| Hyprland config | `hyprland-desktop.nix` | `hyprland.nix` |
 
 ### LSP / Neovim
 
@@ -69,9 +84,9 @@ Mason is disabled. All LSPs and formatters are installed as Nix packages via `ex
 
 ## Display manager
 
-Two options commented in `hosts/nixos/configuration.nix`:
-- **Option A** (active): `greetd + tuigreet`
-- **Option B**: `dms-greeter` — check current module API first with `nix flake show github:AvengeMedia/DankMaterialShell/stable`
+Both hosts use **dms-greeter** (`programs.dank-material-shell.greeter`, compositor default: `sway`). Built on greetd. Sway, Hyprland, and GNOME (desktop only) are all selectable as sessions at login.
+
+Check module API with: `nix flake show github:AvengeMedia/DankMaterialShell/stable`
 
 ## Manual post-install steps
 
@@ -79,9 +94,9 @@ These must be done manually after a fresh install:
 
 - **Syncthing**: open the web UI (`http://localhost:8384`) and pair with other devices
 - **Atuin**: `atuin login` to sync shell history
-- **GitHub CLI**: `gh auth login` to authenticate
+- **GitHub CLI**: `gh auth login` to authenticate (needed by the activation script to clone private repos)
 
 ## Hardware-specific notes
 
-- `hardware-configuration.nix` è machine-generated e viene letto da `/etc/nixos/hardware-configuration.nix` (path assoluto in `configuration.nix`), non è nel repo.
-- Monitor output names (`eDP-1`, `DP-1`, etc.) are configured in `home/programs/sway.nix`. Use `wdisplays` to identify them.
+- `hardware-configuration.nix` is machine-generated and read from `/etc/nixos/hardware-configuration.nix` (absolute path in `configuration.nix`), not in this repo.
+- Monitor output names (`eDP-1`, `DP-1`, etc.) are configured in the sway program files. Use `wdisplays` to identify them.

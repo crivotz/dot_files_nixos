@@ -21,7 +21,7 @@
       ];
 
       workspace = [
-        "1,monitor:DP-3"
+        "1,monitor:eDP-1"
         "2,monitor:DP-4"
         "3,monitor:DP-5"
       ];
@@ -85,7 +85,7 @@
         "wl-paste --watch cliphist store"
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
         # Specchio del bindswitch --reload di Sway: disabilita eDP-1 se il coperchio è già chiuso all'avvio.
-        "bash -c 'cat /proc/acpi/button/lid/*/state 2>/dev/null | grep -q closed && hyprctl keyword monitor \"eDP-1,disable\"'"
+        "bash -c 'cat /proc/acpi/button/lid/*/state 2>/dev/null | grep -q closed && hyprctl keyword monitor \"eDP-1,disable\" && hyprctl dispatch moveworkspacetomonitor 1 DP-4'"
       ];
 
       bind = [
@@ -184,8 +184,8 @@
       bindl = [
         ", XF86AudioMute, exec, dms ipc call audio mute"
         # Lid switch: disabilita/abilita display interno
-        ", switch:on:Lid Switch, exec, hyprctl keyword monitor \"eDP-1, disable, 0x0, 1\""
-        ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1, preferred, auto, 1\""
+        ", switch:on:Lid Switch, exec, hyprctl keyword monitor \"eDP-1,disable\" && hyprctl dispatch moveworkspacetomonitor 1 DP-4"
+        ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1,preferred,auto,1\" && hyprctl dispatch moveworkspacetomonitor 1 eDP-1"
       ];
 
     };

@@ -84,6 +84,9 @@
     };
   };
 
+  # GNOME — available as an additional session for other users alongside Sway/Hyprland.
+  services.xserver.desktopManager.gnome.enable = true;
+
   # rtkit grants real-time scheduling priority to PipeWire, preventing audio glitches.
   security.rtkit.enable = true;
   services.pipewire = {

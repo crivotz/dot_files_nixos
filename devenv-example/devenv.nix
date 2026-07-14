@@ -81,16 +81,9 @@
     echo "Rails: $(bundle exec rails -v 2>/dev/null || echo 'non installato, esegui: bundle install')"
     echo ""
     echo "Comandi utili:"
-    echo "  devenv up          → avvia PostgreSQL + Redis"
-    echo "  bundle install     → installa gem"
-    echo "  bundle exec rails s → avvia server"
-    echo "  overmind start     → avvia tutto via Procfile.dev"
+    echo "  devenv up                      → avvia PostgreSQL + Redis"
+    echo "  overmind start -f Procfile.dev → avvia i processi app (dentro devenv shell)"
+    echo "  overmind connect backend       → attacca al processo rails"
+    echo "  bundle install                 → installa gem"
   '';
-
-  # Processi gestiti da devenv up
-  processes = {
-    # rails.exec = "bundle exec rails server -p 3000";
-    # sidekiq.exec = "bundle exec sidekiq";
-    # vite.exec = "bundle exec vite dev";
-  };
 }
