@@ -73,7 +73,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
-              extraSpecialArgs = { inherit pkgs; stateVersion = "25.11"; };
+              extraSpecialArgs = { inherit pkgs; stateVersion = "26.11"; };
               users.mauro = import ./home/home-desktop.nix;
             };
           })
