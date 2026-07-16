@@ -19,17 +19,13 @@
     LC_NUMERIC = "it_IT.UTF-8";
   };
 
-  # Display manager: dms-greeter (speculare a NIXMAU_LT).
-  programs.dank-material-shell.greeter = {
-    enable = true;
-    compositor.name = "sway";
-  };
-  services.greetd.settings.default_session.user = "greeter";
+  # Display manager: GDM ricorda l'ultima sessione per utente (Sway, Hyprland, GNOME).
+  services.displayManager.gdm.enable = true;
   # Registers gnome-keyring's D-Bus service (org.freedesktop.secrets) so apps like VSCode/Brave
-  # can find a Secret Service to store credentials, since there's no GNOME session to start it.
+  # can find a Secret Service to store credentials in non-GNOME sessions.
   services.gnome.gnome-keyring.enable = true;
-  # Unlock the GNOME keyring on login so apps using libsecret work without a desktop environment.
-  security.pam.services.greetd.enableGnomeKeyring = true;
+  # Unlock the GNOME keyring on login via GDM PAM.
+  security.pam.services.gdm.enableGnomeKeyring = true;
 
   # Hyprland — available as an alternative session alongside Sway.
   programs.hyprland = {
@@ -109,7 +105,7 @@
   # Primary user account.
   users.users.mauro = {
     isNormalUser = true;
-    description = "Mauro Locatelli";
+    description = "Mauro";
     extraGroups = [
       "wheel"        # sudo
       "networkmanager"
@@ -238,12 +234,24 @@
 
   # Desktop has no backlight so brightnessctl is omitted; brightness is controlled via DDC/CI through dms.
   environment.systemPackages = with pkgs; [
+    # App desktop condivise tra tutti gli utenti
     wget
     curl
     git
     wl-clipboard
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
     networkmanagerapplet
+    brave
+    vlc
+    xournalpp
+    papirus-icon-theme
+    libreoffice
+    gimp
+    inkscape
+    filezilla
+    remmina
+    system-config-printer
+    ghostty
   ];
 
   # Italian keyboard layout; second variant "nodeadkeys" gives a US-style layout as an alt.
@@ -276,6 +284,20 @@
       dates = "weekly";
       options = "--keep-last 3 --delete-old";
     };
+  };
+
+  system.activationScripts.gdm-faces = {
+    text = ''
+      for user in mauro andrea laura; do
+        src="/home/$user/.face"
+        if [ -f "$src" ]; then
+          install -Dm644 "$src" "/var/lib/AccountsService/icons/$user"
+          mkdir -p /var/lib/AccountsService/users
+          printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$user" \
+            > "/var/lib/AccountsService/users/$user"
+        fi
+      done
+    '';
   };
 
   system.stateVersion = "26.05";

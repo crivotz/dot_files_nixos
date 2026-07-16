@@ -2,8 +2,6 @@
 {
   home.packages = with pkgs; [
     # CLI essenziali
-    wget
-    curl
     unzip
     file
     tmuxp
@@ -45,34 +43,16 @@
     prettyping
     yazi            # file manager TUI (wrapper con cwd persistence in zsh.nix)
 
-    # Terminale
-    ghostty
-
     # 1Password CLI
     _1password-cli
 
     # Network / Remote
     nmap
     net-tools
-    remmina
-
-    # Multimedia
-    vlc
 
     # Wayland tools
     wdisplays
     cliphist
-
-    # Produttività desktop
-    brave
-    nautilus
-    gnome-disk-utility  # GUI per gestire dischi e drive USB
-    gnome-keyring       # Secret Service API (libsecret) per Brave, VSCode, ecc.
-    xournalpp           # note e annotazioni PDF
-    papirus-icon-theme
-    filezilla
-    gimp
-    inkscape
 
     # Database
     dbeaver-bin

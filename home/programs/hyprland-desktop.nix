@@ -106,7 +106,9 @@
         "SUPER, F, fullscreen, 0"
         "SUPER SHIFT, SPACE, togglefloating,"
         "SUPER, E, layoutmsg, togglesplit"
-        "SUPER, S, layoutmsg, orientationtop"
+        "SUPER, S, togglegroup,"
+        "SUPER, TAB, changegroupactive, f"
+        "SUPER SHIFT, TAB, changegroupactive, b"
         "SUPER, R, submap, resize"
 
         # Azioni sistema

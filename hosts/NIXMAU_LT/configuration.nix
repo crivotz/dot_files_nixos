@@ -120,7 +120,7 @@
   # Primary user account.
   users.users.mauro = {
     isNormalUser = true;
-    description = "Mauro Locatelli";
+    description = "Mauro";
     extraGroups = [
       "wheel"        # sudo
       "networkmanager"
@@ -236,6 +236,7 @@
   };
 
   environment.systemPackages = with pkgs; [
+    # App desktop condivise tra tutti gli utenti
     wget
     curl
     git
@@ -243,6 +244,17 @@
     wl-clipboard
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
     networkmanagerapplet
+    brave
+    vlc
+    xournalpp
+    papirus-icon-theme
+    libreoffice
+    gimp
+    inkscape
+    filezilla
+    remmina
+    system-config-printer
+    ghostty
   ];
 
   # Italian keyboard layout; second variant "nodeadkeys" gives a US-style layout as an alt.
