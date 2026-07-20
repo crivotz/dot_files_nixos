@@ -51,7 +51,7 @@ devenv-example/devenv.nix              # copy-paste template for Ruby on Rails p
 
 | Input | Purpose |
 |---|---|
-| `nixpkgs` (unstable) | All packages |
+| `nixpkgs` (nixos-26.05 stable) | All packages |
 | `home-manager` | User-level config, follows nixpkgs |
 | `neovim-nightly-overlay` | Neovim nightly build |
 | `dms` (DankMaterialShell/stable) | Sway shell/widget layer + greeter |

@@ -279,6 +279,22 @@
       fi
 
       #########################################################################
+      # CTRL-G: fzf picker per progetti Google Cloud
+      #########################################################################
+      function gcloud-project-widget() {
+        local project
+        project=$(gcloud projects list --format="value(projectId)" 2>/dev/null | fzf --prompt="GCloud project> " --height=40% --layout=reverse --border)
+        if [[ -n "$project" ]]; then
+          gcloud config set project "$project" >/dev/null 2>&1
+          POSTDISPLAY=" [GCloud: $project]"
+          zle reset-prompt
+        fi
+        zle reset-prompt
+      }
+      zle -N gcloud-project-widget
+      bindkey '^G' gcloud-project-widget
+
+      #########################################################################
       # PATH
       #########################################################################
       export PATH=$PATH:/usr/local/go/bin:~/.local/bin:~/bin

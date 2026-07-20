@@ -106,7 +106,7 @@
         "SUPER, F, fullscreen, 0"
         "SUPER SHIFT, SPACE, togglefloating,"
         "SUPER, E, layoutmsg, togglesplit"
-        "SUPER, S, togglegroup,"
+        "SUPER, S, fullscreen, 1"
         "SUPER, TAB, changegroupactive, f"
         "SUPER SHIFT, TAB, changegroupactive, b"
         "SUPER, R, submap, resize"
