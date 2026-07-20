@@ -143,6 +143,18 @@
     polkitPolicyOwners = [ "mauro" ];
   };
 
+  # nix-ld provides a stub dynamic linker at /lib64/ld-linux-x86-64.so.2 so pre-built
+  # generic-linux binaries (e.g. gh copilot, node, etc.) can find glibc and friends.
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      stdenv.cc.cc
+      openssl
+      zlib
+      curl
+    ];
+  };
+
   virtualisation.docker.enable = true;
 
   # Local PostgreSQL for devenv projects. mkOverride 10 wins over the default priority (1000),
@@ -298,10 +310,10 @@
             printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$user" > "$dest"
           else
             # Update only the Icon= line, preserving Session= and other keys written by GDM
-            if grep -q '^Icon=' "$dest"; then
-              sed -i "s|^Icon=.*|Icon=/var/lib/AccountsService/icons/$user|" "$dest"
+            if ${pkgs.gnugrep}/bin/grep -q '^Icon=' "$dest"; then
+              ${pkgs.gnused}/bin/sed -i "s|^Icon=.*|Icon=/var/lib/AccountsService/icons/$user|" "$dest"
             else
-              sed -i '/^\[User\]/a '"Icon=/var/lib/AccountsService/icons/$user" "$dest"
+              ${pkgs.gnused}/bin/sed -i '/^\[User\]/a '"Icon=/var/lib/AccountsService/icons/$user" "$dest"
             fi
           fi
         fi
