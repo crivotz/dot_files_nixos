@@ -13,6 +13,7 @@
     vim-language-server
     dockerfile-language-server
     solargraph
+    copilot-language-server
 
     # Formatter
     prettierd
