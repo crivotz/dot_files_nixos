@@ -292,9 +292,18 @@
         src="/home/$user/.face"
         if [ -f "$src" ]; then
           install -Dm644 "$src" "/var/lib/AccountsService/icons/$user"
+          dest="/var/lib/AccountsService/users/$user"
           mkdir -p /var/lib/AccountsService/users
-          printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$user" \
-            > "/var/lib/AccountsService/users/$user"
+          if [ ! -f "$dest" ]; then
+            printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$user" > "$dest"
+          else
+            # Update only the Icon= line, preserving Session= and other keys written by GDM
+            if grep -q '^Icon=' "$dest"; then
+              sed -i "s|^Icon=.*|Icon=/var/lib/AccountsService/icons/$user|" "$dest"
+            else
+              sed -i '/^\[User\]/a '"Icon=/var/lib/AccountsService/icons/$user" "$dest"
+            fi
+          fi
         fi
       done
     '';

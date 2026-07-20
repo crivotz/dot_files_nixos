@@ -63,9 +63,9 @@
 
     # Varie
     xdg-utils
+    spotify
 
     # AI
     claude-code
-    github-copilot-cli
   ];
 }
