@@ -20,9 +20,11 @@
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    copilot-cli-flake.url = "github:scarisey/copilot-cli-flake";
   };
 
-  outputs = { self, nixpkgs, home-manager, neovim-nightly-overlay, dms, ... }:
+  outputs = { self, nixpkgs, home-manager, neovim-nightly-overlay, dms, copilot-cli-flake, ... }:
     let
       system = "x86_64-linux";
       # Shared nixpkgs.* settings applied identically on both hosts, via the ordinary
@@ -32,7 +34,12 @@
         # Required for vscode, unrar, and other non-free packages in packages.nix.
         nixpkgs.config.allowUnfree = true;
         # Injects the neovim nightly build so `pkgs.neovim` resolves to nightly everywhere.
-        nixpkgs.overlays = [ neovim-nightly-overlay.overlays.default ];
+        nixpkgs.overlays = [
+          neovim-nightly-overlay.overlays.default
+          (final: prev: {
+            github-copilot-cli = copilot-cli-flake.packages.${system}.default;
+          })
+        ];
       };
     in
     {

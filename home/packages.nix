@@ -67,5 +67,6 @@
 
     # AI
     claude-code
+    github-copilot-cli
   ];
 }
