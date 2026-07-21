@@ -53,6 +53,8 @@
     # Wayland tools
     wdisplays
     cliphist
+    grim   # screenshot Wayland
+    slurp  # region selector (usato da grim)
 
     # Database
     dbeaver-bin

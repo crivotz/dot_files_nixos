@@ -117,6 +117,9 @@
 
   services.upower.enable = true;
 
+  # AnyDesk: remote desktop daemon (unattended access).
+  services.anydesk.enable = true;
+
   # Primary user account.
   users.users.mauro = {
     isNormalUser = true;

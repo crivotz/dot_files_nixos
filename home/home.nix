@@ -10,6 +10,8 @@ in
     ./programs/git.nix
     ./programs/sway.nix
     ./programs/hyprland.nix
+    ./programs/hypridle.nix
+    ./programs/hyprlock.nix
     ./packages.nix
     ./services/syncthing.nix
   ];

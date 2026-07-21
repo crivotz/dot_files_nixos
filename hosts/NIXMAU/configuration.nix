@@ -36,20 +36,20 @@
 
   # Enables Sway system-wide with the GTK wrapper (needed for GTK file dialogs, app theming).
   # Extra packages are Wayland utilities that don't fit in home.packages (they need system-level access).
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [
-      swaylock
-      swayidle
-      wdisplays   # GUI monitor layout tool (identify output names for sway output config)
-      grim        # Wayland screenshot
-      slurp       # Region selector (used by grimshot)
-      sway-contrib.grimshot
-      wl-clipboard
-      cliphist    # Clipboard history daemon
-    ];
-  };
+  # programs.sway = {
+  #   enable = true;
+  #   wrapperFeatures.gtk = true;
+  #   extraPackages = with pkgs; [
+  #     swaylock
+  #     swayidle
+  #     wdisplays   # GUI monitor layout tool (identify output names for sway output config)
+  #     grim        # Wayland screenshot
+  #     slurp       # Region selector (used by grimshot)
+  #     sway-contrib.grimshot
+  #     wl-clipboard
+  #     cliphist    # Clipboard history daemon
+  #   ];
+  # };
 
   # DankMaterialShell — Sway shell/widget layer providing bar, spotlight, clipboard, and audio IPC.
   programs.dms-shell = {
@@ -65,10 +65,11 @@
     enableAudioWavelength = false;
   };
 
-  # XDG portals: wlr per Sway (screen sharing), hyprland per Hyprland, gtk per file picker.
+  # XDG portals: hyprland per Hyprland, gtk per file picker.
+  # wlr.enable era per Sway (screen sharing) — commentato insieme a programs.sway.
   xdg.portal = {
     enable = true;
-    wlr.enable = true;
+    # wlr.enable = true;
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
       pkgs.xdg-desktop-portal-hyprland
@@ -213,6 +214,18 @@
   # upower is used by idle detectors and some desktop apps even on non-laptop hardware.
   services.upower.enable = true;
 
+  # AnyDesk: remote desktop daemon (unattended access).
+  # No NixOS module exists for anydesk; run the daemon via a plain systemd service.
+  systemd.services.anydesk = {
+    description = "AnyDesk remote desktop daemon";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.anydesk}/bin/anydesk --service";
+      Restart = "on-failure";
+    };
+  };
+
   # Polkit is required by 1Password GUI and various Wayland/system tools.
   security.polkit.enable = true;
 
@@ -264,6 +277,7 @@
     remmina
     system-config-printer
     ghostty
+    anydesk
   ];
 
   # Italian keyboard layout; second variant "nodeadkeys" gives a US-style layout as an alt.

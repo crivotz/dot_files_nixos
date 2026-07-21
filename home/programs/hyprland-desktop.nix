@@ -125,14 +125,20 @@
         "SUPER, M, exec, dms ipc call processlist focusOrToggle"
         "SUPER, comma, exec, dms ipc call settings focusOrToggle"
 
+        # Lock screen
+        "SUPER SHIFT, L, exec, loginctl lock-session"
+
         # 1Password quick access
         "CTRL SHIFT, SPACE, exec, 1password --quick-access"
 
-        # Screenshot (grim+slurp, già installati tramite programs.sway.extraPackages)
+        # Screenshot → clipboard
         "SUPER, P, exec, grim -g \"$(slurp -d)\" - | wl-copy"
         "SUPER SHIFT, P, exec, grim -g \"$(slurp)\" - | wl-copy"
         "SUPER ALT, P, exec, grim - | wl-copy"
-        "SUPER CTRL, P, exec, grim -g \"$(slurp -d)\" - | wl-copy"
+
+        # Screenshot → file ~/Pictures/Screenshots/ (+ copia in clipboard)
+        "SUPER SHIFT, S, exec, bash -c 'mkdir -p ~/Pictures/Screenshots; F=~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png; grim -g \"$(slurp)\" \"$F\" && wl-copy < \"$F\"'"
+        "SUPER CTRL, S, exec, bash -c 'mkdir -p ~/Pictures/Screenshots; F=~/Pictures/Screenshots/$(date +%Y%m%d_%H%M%S).png; grim \"$F\" && wl-copy < \"$F\"'"
 
         # Tasti speciali tastiera
         ", XF86HomePage, exec, brave"
