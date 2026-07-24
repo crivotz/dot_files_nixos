@@ -4,16 +4,15 @@
     enable = true;
     settings = {
       general = {
-        disable_loading_bar = true;
         hide_cursor = true;
       };
 
       background = [
         {
           monitor = "";
-          path = "screenshot";
-          blur_passes = 3;
-          blur_size = 8;
+          path = "";
+          color = "rgba(1a1b26ff)";
+          blur_passes = 0;
         }
       ];
 

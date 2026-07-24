@@ -84,8 +84,8 @@
         "syncthing serve --no-browser --logfile=default"
         "wl-paste --watch cliphist store"
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-        # Specchio del bindswitch --reload di Sway: disabilita eDP-1 se il coperchio è già chiuso all'avvio.
-        "bash -c 'cat /proc/acpi/button/lid/*/state 2>/dev/null | grep -q closed && hyprctl keyword monitor \"eDP-1,disable\" && hyprctl dispatch moveworkspacetomonitor 1 DP-4'"
+        # Disabilita eDP-1 all'avvio solo se il coperchio è chiuso E ci sono monitor esterni (altrimenti hyprlock non ha display).
+        "bash -c 'cat /proc/acpi/button/lid/*/state 2>/dev/null | grep -q closed && [ $(hyprctl monitors | grep -c \"^Monitor\") -gt 1 ] && hyprctl keyword monitor \"eDP-1,disable\" && hyprctl dispatch moveworkspacetomonitor 1 DP-4'"
       ];
 
       bind = [
@@ -191,8 +191,8 @@
 
       bindl = [
         ", XF86AudioMute, exec, dms ipc call audio mute"
-        # Lid switch: disabilita/abilita display interno
-        ", switch:on:Lid Switch, exec, loginctl lock-session && hyprctl keyword monitor \"eDP-1,disable\" && hyprctl dispatch moveworkspacetomonitor 1 DP-4"
+        # Lid switch: se ci sono monitor esterni, disabilita eDP-1 PRIMA del lock (evita race condition con lo screenshot di hyprlock).
+        ", switch:on:Lid Switch, exec, bash -c 'if [ $(hyprctl monitors | grep -c \"^Monitor\") -gt 1 ]; then hyprctl keyword monitor \"eDP-1,disable\"; hyprctl dispatch moveworkspacetomonitor 1 DP-4; sleep 0.3; fi; loginctl lock-session'"
         ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1,preferred,auto,1\" && hyprctl dispatch moveworkspacetomonitor 1 eDP-1"
       ];
 

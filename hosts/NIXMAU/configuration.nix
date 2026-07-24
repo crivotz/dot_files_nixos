@@ -26,6 +26,7 @@
   services.gnome.gnome-keyring.enable = true;
   # Unlock the GNOME keyring on login via GDM PAM.
   security.pam.services.gdm.enableGnomeKeyring = true;
+  security.pam.services.hyprlock = {};
 
   # Hyprland — available as an alternative session alongside Sway.
   programs.hyprland = {

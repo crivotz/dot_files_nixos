@@ -42,6 +42,7 @@
   services.gnome.gnome-keyring.enable = true;
   # Unlock the GNOME keyring on login so apps using libsecret work without a desktop environment.
   security.pam.services.greetd.enableGnomeKeyring = true;
+  security.pam.services.hyprlock = {};
 
   # Hyprland — available as an alternative session alongside Sway.
   # Per selezionarlo al login: cambia il greeter (vedi commento dms-greeter sopra) o avvia
