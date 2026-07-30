@@ -43,12 +43,12 @@
       };
     in
     {
-      # Laptop (NIXMAU_LT)
-      nixosConfigurations.NIXMAU_LT = nixpkgs.lib.nixosSystem {
+      # Laptop (NIXMAULT)
+      nixosConfigurations.NIXMAULT = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
           nixpkgsModule
-          ./hosts/NIXMAU_LT/configuration.nix
+          ./hosts/NIXMAULT/configuration.nix
           dms.nixosModules.default
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 NixOS system configuration using Flakes + Home Manager. Manages two `x86_64-linux` hosts:
 - **NIXMAU** — desktop
-- **NIXMAU_LT** — laptop
+- **NIXMAULT** — laptop
 
 ## Key commands
 
@@ -35,9 +35,9 @@ sudo nixos-rebuild dry-activate --flake .
 ## Architecture
 
 ```
-flake.nix                              # inputs + nixosConfigurations for NIXMAU and NIXMAU_LT
+flake.nix                              # inputs + nixosConfigurations for NIXMAU and NIXMAULT
 hosts/NIXMAU/configuration.nix         # desktop: system-level config (boot, services, users, fonts)
-hosts/NIXMAU_LT/configuration.nix      # laptop: same structure, adds power management + backlight
+hosts/NIXMAULT/configuration.nix      # laptop: same structure, adds power management + backlight
 config/                                # dotfiles symlinked into $HOME via home.file (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, claude)
 home/home.nix                          # home-manager entry point for laptop
 home/home-desktop.nix                  # home-manager entry point for desktop
@@ -66,7 +66,7 @@ All other dotfiles (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, c
 
 ### Desktop vs laptop differences
 
-| Feature | NIXMAU (desktop) | NIXMAU_LT (laptop) |
+| Feature | NIXMAU (desktop) | NIXMAULT (laptop) |
 |---|---|---|
 | GNOME | enabled (for other users) | no |
 | Power profiles | no | `power-profiles-daemon` |

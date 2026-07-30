@@ -7,7 +7,7 @@
   boot.loader.systemd-boot.configurationLimit = 3;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "NIXMAU_LT";
+  networking.hostName = "NIXMAULT";
   networking.networkmanager.enable = true;
 
   # Italian locale for time formatting and number separators.
