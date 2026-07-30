@@ -50,7 +50,6 @@
           nixpkgsModule
           ./hosts/NIXMAU_LT/configuration.nix
           dms.nixosModules.default
-          dms.nixosModules.greeter
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {
@@ -60,7 +59,7 @@
               useUserPackages = true;
               # Forwards the pkgs set (with overlays) into home-manager modules.
               # stateVersion must match the NixOS version at the time of the original install.
-              extraSpecialArgs = { inherit pkgs; stateVersion = "25.11"; };
+              extraSpecialArgs = { inherit pkgs; stateVersion = "26.05"; };
               users.mauro = import ./home/home.nix;
             };
           })

@@ -19,34 +19,16 @@
     LC_NUMERIC = "it_IT.UTF-8";
   };
 
-  # Display manager — two options (switch by commenting/uncommenting):
-  #
-  # Option A: greetd + tuigreet (text-mode greeter, more reliable)
-  # services.greetd = {
-  #   enable = true;
-  #   settings.default_session = {
-  #     command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd sway";
-  #     user = "greeter";
-  #   };
-  # };
-  #
-  # Option B (active): dms-greeter — graphical greeter from DankMaterialShell.
-  # Requires dms.nixosModules.greeter in flake.nix modules (already included).
-  programs.dank-material-shell.greeter = {
-    enable = true;
-    compositor.name = "sway";
-  };
-  services.greetd.settings.default_session.user = "greeter";
+  # Display manager: GDM ricorda l'ultima sessione per utente (Sway, Hyprland, GNOME).
+  services.displayManager.gdm.enable = true;
   # Registers gnome-keyring's D-Bus service (org.freedesktop.secrets) so apps like VSCode/Brave
-  # can find a Secret Service to store credentials, since there's no GNOME session to start it.
+  # can find a Secret Service to store credentials in non-GNOME sessions.
   services.gnome.gnome-keyring.enable = true;
-  # Unlock the GNOME keyring on login so apps using libsecret work without a desktop environment.
-  security.pam.services.greetd.enableGnomeKeyring = true;
+  # Unlock the GNOME keyring on login via GDM PAM.
+  security.pam.services.gdm.enableGnomeKeyring = true;
   security.pam.services.hyprlock = {};
 
-  # Hyprland — available as an alternative session alongside Sway.
-  # Per selezionarlo al login: cambia il greeter (vedi commento dms-greeter sopra) o avvia
-  # `Hyprland` manualmente da una sessione TTY.
+  # Hyprland — available as an alternative session alongside GDM.
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -55,20 +37,20 @@
 
   # Enables Sway system-wide with the GTK wrapper (needed for GTK file dialogs, app theming).
   # Extra packages are Wayland utilities that don't fit in home.packages (they need system-level access).
-  programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [
-      swaylock
-      swayidle
-      wdisplays   # GUI monitor layout tool (identify output names for sway output config)
-      grim        # Wayland screenshot
-      slurp       # Region selector (used by grimshot)
-      sway-contrib.grimshot
-      wl-clipboard
-      cliphist    # Clipboard history daemon
-    ];
-  };
+  # programs.sway = {
+  #   enable = true;
+  #   wrapperFeatures.gtk = true;
+  #   extraPackages = with pkgs; [
+  #     swaylock
+  #     swayidle
+  #     wdisplays   # GUI monitor layout tool (identify output names for sway output config)
+  #     grim        # Wayland screenshot
+  #     slurp       # Region selector (used by grimshot)
+  #     sway-contrib.grimshot
+  #     wl-clipboard
+  #     cliphist    # Clipboard history daemon
+  #   ];
+  # };
 
   # DankMaterialShell — Sway shell/widget layer providing bar, spotlight, clipboard, and audio IPC.
   programs.dms-shell = {
@@ -83,10 +65,11 @@
     enableAudioWavelength = false;
   };
 
-  # XDG portals: wlr per Sway (screen sharing), hyprland per Hyprland, gtk per file picker.
+  # XDG portals: hyprland per Hyprland, gtk per file picker.
+  # wlr.enable era per Sway (screen sharing) — commentato insieme a programs.sway.
   xdg.portal = {
     enable = true;
-    wlr.enable = true;
+    # wlr.enable = true;
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
       pkgs.xdg-desktop-portal-hyprland
@@ -119,7 +102,16 @@
   services.upower.enable = true;
 
   # AnyDesk: remote desktop daemon (unattended access).
-  services.anydesk.enable = true;
+  # No NixOS module exists for anydesk; run the daemon via a plain systemd service.
+  systemd.services.anydesk = {
+    description = "AnyDesk remote desktop daemon";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.anydesk}/bin/anydesk --service";
+      Restart = "on-failure";
+    };
+  };
 
   # Primary user account.
   users.users.mauro = {
@@ -148,6 +140,18 @@
     enable = true;
     # Grants mauro the polkit policy that lets 1Password GUI unlock the SSH agent.
     polkitPolicyOwners = [ "mauro" ];
+  };
+
+  # nix-ld provides a stub dynamic linker at /lib64/ld-linux-x86-64.so.2 so pre-built
+  # generic-linux binaries (e.g. gh copilot, node, etc.) can find glibc and friends.
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      stdenv.cc.cc
+      openssl
+      zlib
+      curl
+    ];
   };
 
   virtualisation.docker.enable = true;
@@ -259,6 +263,7 @@
     remmina
     system-config-printer
     ghostty
+    anydesk
   ];
 
   # Italian keyboard layout; second variant "nodeadkeys" gives a US-style layout as an alt.
@@ -293,5 +298,28 @@
     };
   };
 
-  system.stateVersion = "25.11";
+  system.activationScripts.gdm-faces = {
+    text = ''
+      for user in mauro; do
+        src="/home/$user/.face"
+        if [ -f "$src" ]; then
+          install -Dm644 "$src" "/var/lib/AccountsService/icons/$user"
+          dest="/var/lib/AccountsService/users/$user"
+          mkdir -p /var/lib/AccountsService/users
+          if [ ! -f "$dest" ]; then
+            printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$user" > "$dest"
+          else
+            # Update only the Icon= line, preserving Session= and other keys written by GDM
+            if ${pkgs.gnugrep}/bin/grep -q '^Icon=' "$dest"; then
+              ${pkgs.gnused}/bin/sed -i "s|^Icon=.*|Icon=/var/lib/AccountsService/icons/$user|" "$dest"
+            else
+              ${pkgs.gnused}/bin/sed -i '/^\[User\]/a '"Icon=/var/lib/AccountsService/icons/$user" "$dest"
+            fi
+          fi
+        fi
+      done
+    '';
+  };
+
+  system.stateVersion = "26.05";
 }
