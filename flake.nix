@@ -10,11 +10,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # DankMaterialShell — Sway shell/widget layer used for the bar, greeter, and IPC keybindings.
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/stable";
@@ -29,7 +24,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, neovim-nightly-overlay, dms, copilot-cli-flake, zen-browser, ... }:
+  outputs = { self, nixpkgs, home-manager, dms, copilot-cli-flake, zen-browser, ... }:
     let
       system = "x86_64-linux";
       # Shared nixpkgs.* settings applied identically on both hosts, via the ordinary
@@ -38,9 +33,7 @@
       nixpkgsModule = {
         # Required for vscode, unrar, and other non-free packages in packages.nix.
         nixpkgs.config.allowUnfree = true;
-        # Injects the neovim nightly build so `pkgs.neovim` resolves to nightly everywhere.
         nixpkgs.overlays = [
-          neovim-nightly-overlay.overlays.default
           (final: prev: {
             github-copilot-cli = copilot-cli-flake.packages.${system}.default;
             zen-browser = zen-browser.packages.${system}.default;
