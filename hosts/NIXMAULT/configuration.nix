@@ -275,6 +275,7 @@
     wl-clipboard
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
     brave
+    zen-browser
     vlc
     xournalpp
     papirus-icon-theme

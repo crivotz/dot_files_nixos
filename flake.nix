@@ -22,9 +22,14 @@
     };
 
     copilot-cli-flake.url = "github:scarisey/copilot-cli-flake";
+
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, neovim-nightly-overlay, dms, copilot-cli-flake, ... }:
+  outputs = { self, nixpkgs, home-manager, neovim-nightly-overlay, dms, copilot-cli-flake, zen-browser, ... }:
     let
       system = "x86_64-linux";
       # Shared nixpkgs.* settings applied identically on both hosts, via the ordinary
@@ -38,6 +43,7 @@
           neovim-nightly-overlay.overlays.default
           (final: prev: {
             github-copilot-cli = copilot-cli-flake.packages.${system}.default;
+            zen-browser = zen-browser.packages.${system}.default;
           })
         ];
       };
