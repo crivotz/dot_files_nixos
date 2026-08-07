@@ -62,6 +62,7 @@
     };
     enableClipboardPaste = true;
     enableSystemMonitoring = true;
+    # Audio wavelength visualiser disabled (no use case on desktop).
     enableAudioWavelength = false;
   };
 
@@ -85,6 +86,9 @@
     };
   };
 
+  # GNOME — available as an additional session for other users alongside Sway/Hyprland.
+  services.desktopManager.gnome.enable = true;
+
   # rtkit grants real-time scheduling priority to PipeWire, preventing audio glitches.
   security.rtkit.enable = true;
   services.pipewire = {
@@ -96,9 +100,9 @@
     pulse.enable = true;
   };
 
+  # Remove these two lines if the desktop board has no Bluetooth chip.
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
-
   services.upower.enable = true;
 
   # AnyDesk: remote desktop daemon (unattended access).
@@ -130,6 +134,18 @@
     ];
     shell = pkgs.zsh;
   };
+
+  # users.users.andrea = {
+  #   isNormalUser = true;
+  #   description = "Andrea";
+  #   extraGroups = [ "networkmanager" "audio" "video" ];
+  # };
+
+  # users.users.laura = {
+  #   isNormalUser = true;
+  #   description = "Laura";
+  #   extraGroups = [ "networkmanager" "audio" "video" ];
+  # };
 
   # Must be true so the zsh module generates /etc/zshrc and zsh is available system-wide.
   programs.zsh.enable = true;
@@ -212,6 +228,13 @@
   # power-profiles-daemon switches between power-saver/balanced/performance on D-Bus.
   services.power-profiles-daemon.enable = true;
 
+  # Lascia che Hyprland gestisca il lid switch via bindl (switch:on/off:Lid Switch).
+  # Senza questo, logind sospende il sistema prima che Hyprland possa disabilitare eDP-1.
+  services.logind = {
+    lidSwitch = "ignore";
+    lidSwitchExternalPower = "ignore";
+  };
+
   # Polkit is required by 1Password GUI and various Wayland/system tools.
   security.polkit.enable = true;
 
@@ -251,7 +274,6 @@
     brightnessctl  # Laptop backlight control (used by dms brightness IPC keybindings)
     wl-clipboard
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
-    networkmanagerapplet
     brave
     vlc
     xournalpp

@@ -72,7 +72,7 @@ in
     ".default-gems".source   = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/default-gems";
     ".default-npm-packages".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/ruby/default-npm-packages";
     # Private git config, shell aliases, and env vars (sourced from nubem_dot_files cloned by the activation above)
-    ".gitconfig".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/gitconfig_laptop_silver";
+    ".gitconfig".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/gitconfig_laptop_nixos";
     ".zsh_aliases".source    = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/zsh_aliases";
     ".nubem_env".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/nubem_env";
     # ~/.config/nvim and ~/.config/tmuxp symlinks are created by the activation script above

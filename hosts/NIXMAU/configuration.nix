@@ -101,8 +101,21 @@
   };
 
   # Remove these two lines if the desktop board has no Bluetooth chip.
-  hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
+  # hardware.bluetooth.enable = true;
+  # services.blueman.enable = true;
+  # services.upower.enable = true;
+
+  # AnyDesk: remote desktop daemon (unattended access).
+  # No NixOS module exists for anydesk; run the daemon via a plain systemd service.
+  systemd.services.anydesk = {
+    description = "AnyDesk remote desktop daemon";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.anydesk}/bin/anydesk --service";
+      Restart = "on-failure";
+    };
+  };
 
   # Primary user account.
   users.users.mauro = {
@@ -215,18 +228,6 @@
   # upower is used by idle detectors and some desktop apps even on non-laptop hardware.
   services.upower.enable = true;
 
-  # AnyDesk: remote desktop daemon (unattended access).
-  # No NixOS module exists for anydesk; run the daemon via a plain systemd service.
-  systemd.services.anydesk = {
-    description = "AnyDesk remote desktop daemon";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.anydesk}/bin/anydesk --service";
-      Restart = "on-failure";
-    };
-  };
-
   # Polkit is required by 1Password GUI and various Wayland/system tools.
   security.polkit.enable = true;
 
@@ -258,7 +259,6 @@
     };
   };
 
-  # Desktop has no backlight so brightnessctl is omitted; brightness is controlled via DDC/CI through dms.
   environment.systemPackages = with pkgs; [
     # App desktop condivise tra tutti gli utenti
     wget
@@ -266,7 +266,6 @@
     git
     wl-clipboard
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
-    networkmanagerapplet
     brave
     vlc
     xournalpp
