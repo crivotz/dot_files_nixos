@@ -268,6 +268,7 @@
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
     brave
     zen-browser
+    google-chrome
     vlc
     xournalpp
     papirus-icon-theme
