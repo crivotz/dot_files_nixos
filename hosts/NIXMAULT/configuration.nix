@@ -19,16 +19,20 @@
     LC_NUMERIC = "it_IT.UTF-8";
   };
 
-  # Display manager: GDM ricorda l'ultima sessione per utente (Sway, Hyprland, GNOME).
-  services.displayManager.gdm.enable = true;
+  # Display manager: dms-greeter (DankMaterialShell) remembers the last session per user by default.
+  programs.dank-material-shell.greeter = {
+    enable = true;
+    compositor.name = "hyprland";
+    configHome = "/home/mauro";
+  };
   # Registers gnome-keyring's D-Bus service (org.freedesktop.secrets) so apps like VSCode/Brave
   # can find a Secret Service to store credentials in non-GNOME sessions.
   services.gnome.gnome-keyring.enable = true;
-  # Unlock the GNOME keyring on login via GDM PAM.
-  security.pam.services.gdm.enableGnomeKeyring = true;
+  # Unlock the GNOME keyring on login via greetd PAM.
+  security.pam.services.greetd.enableGnomeKeyring = true;
   security.pam.services.hyprlock = {};
 
-  # Hyprland — available as an alternative session alongside GDM.
+  # Hyprland — available as an alternative session alongside dms-greeter.
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
