@@ -139,12 +139,16 @@
     isNormalUser = true;
     description = "Andrea";
     extraGroups = [ "networkmanager" "audio" "video" ];
+    # Without an explicit shell, NixOS defaults to nologin, which AccountsService
+    # excludes from the GDM greeter's user list.
+    shell = pkgs.bash;
   };
 
   users.users.laura = {
     isNormalUser = true;
     description = "Laura";
     extraGroups = [ "networkmanager" "audio" "video" ];
+    shell = pkgs.bash;
   };
 
   # Must be true so the zsh module generates /etc/zshrc and zsh is available system-wide.
