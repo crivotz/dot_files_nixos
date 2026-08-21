@@ -126,7 +126,7 @@
         "SUPER, comma, exec, dms ipc call settings focusOrToggle"
 
         # Lock screen
-        "SUPER SHIFT, L, exec, loginctl lock-session"
+        "SUPER SHIFT, L, exec, dms ipc call lock lock"
 
         # 1Password quick access
         "CTRL SHIFT, SPACE, exec, 1password --quick-access"

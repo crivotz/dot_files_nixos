@@ -42,6 +42,7 @@
     atuin
     prettyping
     yazi            # file manager TUI (wrapper con cwd persistence in zsh.nix)
+    dig
 
     # 1Password CLI
     _1password-cli

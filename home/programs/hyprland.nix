@@ -120,7 +120,7 @@
         # Azioni sistema
         "SUPER, RETURN, exec, ghostty"
         "SUPER, N, exec, nautilus"
-        "SUPER, C, exec, zen"
+        "SUPER, C, exec, google-chrome"
         "SUPER SHIFT, Q, killactive,"
         "SUPER SHIFT, C, exec, hyprctl reload"
         "SUPER SHIFT, E, exit,"
@@ -132,7 +132,7 @@
         "SUPER, comma, exec, dms ipc call settings focusOrToggle"
 
         # Lock screen
-        "SUPER SHIFT, L, exec, loginctl lock-session"
+        "SUPER SHIFT, L, exec, dms ipc call lock lock"
 
         # 1Password quick access
         "CTRL SHIFT, SPACE, exec, 1password --quick-access"
@@ -190,8 +190,8 @@
 
       bindl = [
         ", XF86AudioMute, exec, dms ipc call audio mute"
-        # Lid switch: se ci sono monitor esterni, disabilita eDP-1 PRIMA del lock (evita race condition con lo screenshot di hyprlock).
-        ", switch:on:Lid Switch, exec, bash -c 'if [ $(hyprctl monitors | grep -c \"^Monitor\") -gt 1 ]; then hyprctl keyword monitor \"eDP-1,disable\"; hyprctl dispatch moveworkspacetomonitor 1 DP-3; sleep 0.3; fi; loginctl lock-session'"
+        # Lid switch: se ci sono monitor esterni, disabilita eDP-1 PRIMA del lock (evita race condition con la surface di lock su un monitor che sta per spegnersi).
+        ", switch:on:Lid Switch, exec, bash -c 'if [ $(hyprctl monitors | grep -c \"^Monitor\") -gt 1 ]; then hyprctl keyword monitor \"eDP-1,disable\"; hyprctl dispatch moveworkspacetomonitor 1 DP-3; sleep 0.3; fi; dms ipc call lock lock'"
         ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1,preferred,auto,1\" && hyprctl dispatch moveworkspacetomonitor 1 eDP-1"
       ];
 

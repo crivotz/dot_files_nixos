@@ -49,6 +49,7 @@
           nixpkgsModule
           ./hosts/NIXMAULT/configuration.nix
           dms.nixosModules.default
+          dms.nixosModules.greeter
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {
