@@ -114,7 +114,7 @@
         # Azioni sistema
         "SUPER, RETURN, exec, ghostty"
         "SUPER, N, exec, nautilus"
-        "SUPER, C, exec, zen"
+        "SUPER, C, exec, google-chrome"
         "SUPER SHIFT, Q, killactive,"
         "SUPER SHIFT, C, exec, hyprctl reload"
         "SUPER SHIFT, E, exit,"
