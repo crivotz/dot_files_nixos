@@ -213,7 +213,7 @@
 
   # CUPS printing with foomatic-db for generic PostScript/PCL driver support.
   services.printing.enable = true;
-  services.printing.drivers = [ pkgs.foomatic-db ];
+  services.printing.drivers = [ pkgs.foomatic-db pkgs.epson-escpr ];
 
   # Avahi enables mDNS (.local hostnames) and automatic printer discovery for CUPS.
   services.avahi = {
