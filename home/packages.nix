@@ -56,6 +56,7 @@
     cliphist
     grim   # screenshot Wayland
     slurp  # region selector (usato da grim)
+    socat  # usato da hypr-lid-watch (hyprland.nix) per ascoltare gli eventi di Hyprland
 
     # Database
     dbeaver-bin

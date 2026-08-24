@@ -1,13 +1,109 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
+let
+  # Sincronizza lo stato di eDP-1 (attivo/disabilitato) in base a coperchio + monitor
+  # esterni rilevati via /sys/class/drm — non tramite `hyprctl monitors`, che a volte
+  # non ha ancora negoziato i monitor esterni nei primi secondi dopo l'avvio.
+  # Lo stato desiderato viene scritto in monitors-dynamic.conf (sourced dal config
+  # sotto) e applicato con `hyprctl reload`, così sopravvive a reload successivi
+  # (es. innescati da dms/matugen), a differenza di un semplice `hyprctl keyword`.
+  hyprLidSync = pkgs.writeShellScript "hypr-lid-sync" ''
+    set -uo pipefail
+
+    STATE_DIR="$HOME/.local/state/hypr"
+    DYNAMIC_CONF="$STATE_DIR/monitors-dynamic.conf"
+    mkdir -p "$STATE_DIR"
+
+    external_connected() {
+      for status in /sys/class/drm/card*-*/status; do
+        [ -e "$status" ] || continue
+        case "$status" in
+          *-eDP-*) continue ;;
+        esac
+        [ "$(cat "$status")" = "connected" ] && return 0
+      done
+      return 1
+    }
+
+    lid_closed() {
+      for state in /proc/acpi/button/lid/*/state; do
+        [ -r "$state" ] || continue
+        grep -q closed "$state" && return 0
+      done
+      return 1
+    }
+
+    # Un output "connected" in /sys/class/drm è solo un rilevamento elettrico:
+    # non garantisce che Hyprland lo abbia già negoziato e attivato. Prima di
+    # spegnere eDP-1 verifichiamo che esista già un altro monitor DAVVERO
+    # attivo secondo Hyprland stesso — altrimenti si rischia di restare senza
+    # nessun output (dms crasha con "no outputs" e la sessione si blocca).
+    other_monitor_active() {
+      hyprctl monitors 2>/dev/null | grep '^Monitor' | grep -qv 'eDP-1'
+    }
+
+    if lid_closed && external_connected && other_monitor_active; then
+      desired='monitor = eDP-1,disable'
+    else
+      desired='monitor = eDP-1,preferred,auto,1'
+    fi
+
+    current=""
+    [ -f "$DYNAMIC_CONF" ] && current=$(cat "$DYNAMIC_CONF")
+
+    if [ "$current" != "$desired" ]; then
+      echo "$desired" > "$DYNAMIC_CONF"
+      hyprctl reload >/dev/null 2>&1
+
+      if [ "$desired" = 'monitor = eDP-1,disable' ]; then
+        hyprctl dispatch focusmonitor DP-3 >/dev/null 2>&1
+        hyprctl dispatch moveworkspacetomonitor 1 DP-3 >/dev/null 2>&1
+      else
+        hyprctl dispatch moveworkspacetomonitor 1 eDP-1 >/dev/null 2>&1
+      fi
+    fi
+  '';
+
+  # Sync iniziale + ascolto eventi Hyprland (monitor aggiunto/rimosso) al posto di
+  # un timeout fisso: reagisce a quando i monitor esterni compaiono davvero,
+  # con qualche re-sync ritardato per assorbire negoziazioni lente (dock/hub).
+  hyprLidWatch = pkgs.writeShellScript "hypr-lid-watch" ''
+    set -uo pipefail
+
+    ${hyprLidSync}
+    touch /tmp/hypr-monitor-init-done
+
+    SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+
+    ${pkgs.socat}/bin/socat -U - "UNIX-CONNECT:$SOCKET" | while read -r event; do
+      case "$event" in
+        monitoradded*|monitorremoved*)
+          ( sleep 1; ${hyprLidSync}; sleep 2; ${hyprLidSync}; sleep 4; ${hyprLidSync} ) &
+          ;;
+      esac
+    done
+  '';
+in
 {
   # Force-overwrite hyprland.conf se esiste già come file non gestito da HM.
   xdg.configFile."hypr/hyprland.conf".force = true;
+
+  # monitors-dynamic.conf (sourced sotto) è scritto a runtime da hyprLidSync: deve
+  # esistere già alla primissima apertura di Hyprland, prima che il watcher parta.
+  home.activation.hyprLidState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "$HOME/.local/state/hypr"
+    [ -f "$HOME/.local/state/hypr/monitors-dynamic.conf" ] || echo 'monitor = eDP-1,preferred,auto,1' > "$HOME/.local/state/hypr/monitors-dynamic.conf"
+  '';
 
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
     systemd.enable = true;
     configType = "hyprlang";
+    # Di default home-manager sposta le righe "source" in cima al file generato.
+    # Qui serve l'opposto: monitors-dynamic.conf (sourced in settings.source
+    # sotto) deve stare DOPO la lista statica "monitor" perché la sua regola
+    # per eDP-1 vinca.
+    sourceFirst = false;
 
     settings = {
       # Laptop monitor layout — mirrors sway.nix output config.
@@ -19,6 +115,10 @@
         "DP-5,1600x900@60,2500x0,1"
         "eDP-1,preferred,auto,1"
       ];
+
+      # Stato dinamico di eDP-1 (attivo/disabilitato), gestito da hyprLidSync.
+      # Va DOPO la lista statica sopra così la sua regola per eDP-1 vince.
+      source = "~/.local/state/hypr/monitors-dynamic.conf";
 
       workspace = [
         "2,monitor:DP-4"
@@ -80,11 +180,17 @@
 
       # dms viene avviato dal suo servizio systemd (programs.dms-shell.systemd.enable = true).
       "exec-once" = [
+        "rm -f /tmp/hypr-monitor-init-done"
         "syncthing serve --no-browser --logfile=default"
         "wl-paste --watch cliphist store"
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-        # Assegna ws1 al monitor corretto in base allo stato del coperchio all'avvio.
-        "bash -c 'sleep 1; EXT=$(hyprctl monitors | grep -c \"^Monitor\"); if cat /proc/acpi/button/lid/*/state 2>/dev/null | grep -q closed && [ $EXT -gt 1 ]; then hyprctl keyword monitor \"eDP-1,disable\"; hyprctl dispatch moveworkspacetomonitor 1 DP-3; else hyprctl dispatch moveworkspacetomonitor 1 eDP-1; fi'"
+        # Sincronizza subito lo stato di eDP-1 in base al coperchio, poi resta in
+        # ascolto per ri-sincronizzare quando i monitor esterni compaiono/spariscono
+        # (vedi definizione di hyprLidWatch sopra). Il marker che crea evita che il
+        # bind switch:on:Lid Switch (che scatta anche per la risincronizzazione
+        # iniziale dello stato, non solo per una chiusura reale) richiami dms lock
+        # durante l'avvio, causando doppia richiesta password.
+        "${hyprLidWatch}"
       ];
 
       bind = [
@@ -190,9 +296,14 @@
 
       bindl = [
         ", XF86AudioMute, exec, dms ipc call audio mute"
-        # Lid switch: se ci sono monitor esterni, disabilita eDP-1 PRIMA del lock (evita race condition con la surface di lock su un monitor che sta per spegnersi).
-        ", switch:on:Lid Switch, exec, bash -c 'if [ $(hyprctl monitors | grep -c \"^Monitor\") -gt 1 ]; then hyprctl keyword monitor \"eDP-1,disable\"; hyprctl dispatch moveworkspacetomonitor 1 DP-3; sleep 0.3; fi; dms ipc call lock lock'"
-        ", switch:off:Lid Switch, exec, hyprctl keyword monitor \"eDP-1,preferred,auto,1\" && hyprctl dispatch moveworkspacetomonitor 1 eDP-1"
+        # Lid switch: hyprLidSync applica/disapplica eDP-1 (idempotente, sopravvive a
+        # reload). Il lock va DOPO il sync per evitare che la sua surface finisca su
+        # un monitor che sta per spegnersi. Il guard sul marker ignora l'evento se lo
+        # script di avvio non ha ancora finito: Hyprland rilancia switch:on anche solo
+        # per risincronizzare lo stato corrente all'avvio, non solo per una chiusura
+        # reale, e senza questo guard chiederebbe la password due volte.
+        ", switch:on:Lid Switch, exec, bash -c '${hyprLidSync}; [ -f /tmp/hypr-monitor-init-done ] || exit 0; dms ipc call lock lock'"
+        ", switch:off:Lid Switch, exec, bash -c '[ -f /tmp/hypr-monitor-init-done ] || exit 0; ${hyprLidSync}'"
       ];
 
     };
