@@ -202,8 +202,14 @@
   # SSH server with password auth disabled; key-only access enforced.
   services.openssh = {
     enable = true;
-    settings.PasswordAuthentication = false;
+    settings = {
+      PasswordAuthentication = false;
+      AllowUsers = [ "mauro" ];
+    };
   };
+
+  # Bans IPs after repeated failed SSH login attempts.
+  services.fail2ban.enable = true;
 
   # NTP via Italian national time institute (INRIM) servers.
   services.ntp = {
@@ -302,7 +308,7 @@
   nix = {
     settings = {
       experimental-features = [ "nix-command" "flakes" ];
-      trusted-users = [ "root" "mauro" ];
+      trusted-users = [ "root" ];
       # Binary caches for nixpkgs, devenv, and nix-community (neovim nightly, etc.).
       substituters = [
         "https://cache.nixos.org"
