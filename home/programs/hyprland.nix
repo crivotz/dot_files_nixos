@@ -106,24 +106,30 @@ in
     sourceFirst = false;
 
     settings = {
-      # Laptop monitor layout — mirrors sway.nix output config.
-      # DP-3 è ruotato 270° (portrait), larghezza effettiva = 900px.
-      # Run `hyprctl monitors` o `wdisplays` per confermare i nomi dei connettori.
+      # Laptop monitor layout.
+      # Il portatile viaggia (ufficio con monitor fissi, ma anche clienti con
+      # monitor sconosciuti), quindi il matching è per IDENTITÀ del monitor
+      # (`desc:marca modello seriale`, da `hyprctl monitors -j`) invece che per
+      # nome porta — un nome porta (DP-3/4/5) può finire su un monitor diverso
+      # da quello previsto appena cambia cosa è collegato o l'ordine di attacco.
+      #
+      # Solo il Philips è configurato ora (è quello attualmente collegato). Le
+      # altre 2 postazioni fisse in ufficio (DELL portrait + terzo monitor)
+      # vanno ripristinate allo stesso modo leggendone il `desc:` da lì.
       monitor = [
-        "DP-3,1440x900@60,0x0,1,transform,1"
-        "DP-4,1600x900@60,900x0,1"
-        "DP-5,1600x900@60,2500x0,1"
+        "desc:Philips Consumer Electronics Company PHL 223V5 UK01737032877,preferred,auto,1"
+        # "desc:<marca modello seriale DELL portrait>,1440x900@60,0x0,1,transform,1"
+        # "desc:<marca modello seriale terzo monitor>,1600x900@60,auto,1"
+
+        # Fallback per qualunque monitor non riconosciuto sopra (es. da cliente): auto.
+        ",preferred,auto,1"
+
         "eDP-1,preferred,auto,1"
       ];
 
       # Stato dinamico di eDP-1 (attivo/disabilitato), gestito da hyprLidSync.
       # Va DOPO la lista statica sopra così la sua regola per eDP-1 vince.
       source = "~/.local/state/hypr/monitors-dynamic.conf";
-
-      workspace = [
-        "2,monitor:DP-4"
-        "3,monitor:DP-5"
-      ];
 
       general = {
         gaps_in = 5;
