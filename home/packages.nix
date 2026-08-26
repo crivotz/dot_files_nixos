@@ -50,6 +50,7 @@
     # Network / Remote
     nmap
     net-tools
+    netwatch
 
     # Wayland tools
     wdisplays
@@ -72,5 +73,8 @@
     # AI
     claude-code
     github-copilot-cli
+
+    # Shell autocomplete/navigation
+    iris
   ];
 }

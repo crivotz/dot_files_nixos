@@ -59,6 +59,8 @@ in
     ".config/eza".source = config.lib.file.mkOutOfStoreSymlink "${cfg}/eza";
     # Lazygit UI config
     ".config/lazygit/config.yml" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/lazygit/config.yml"; force = true; };
+    # IRIS shell autocomplete config
+    ".config/iris/config.toml" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/iris/config.toml"; force = true; };
     # DankMaterialShell widget settings (bar layout, colors, etc.) — per-host file (desktop monitors: DP-1, DP-2)
     ".config/DankMaterialShell/settings.json" = { source = config.lib.file.mkOutOfStoreSymlink "${cfg}/DankMaterialShell/settings-desktop.json"; force = true; };
     # Bat custom syntax-highlighting themes (must run `bat cache --build` after changes)

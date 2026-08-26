@@ -21,11 +21,12 @@
         src = pkgs.zsh-fzf-tab;
         file = "share/fzf-tab/fzf-tab.plugin.zsh";
       }
-      {
-        name = "zsh-autosuggestions";
-        src = pkgs.zsh-autosuggestions;
-        file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
-      }
+      # Disabilitato: sovrapposizione con i suggerimenti di IRIS (eval "$(iris init zsh)")
+      # {
+      #   name = "zsh-autosuggestions";
+      #   src = pkgs.zsh-autosuggestions;
+      #   file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+      # }
       {
         name = "zsh-fast-syntax-highlighting";
         src = pkgs.zsh-fast-syntax-highlighting;
@@ -72,11 +73,23 @@
       LC_ALL = "it_IT.UTF-8";
       BAT_THEME = "tokyonight_night";
       GOPATH = "$HOME/Dev/go";
-      ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
+      # ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20"; # zsh-autosuggestions disabilitato (vedi plugins), sostituito da IRIS
       ENHANCD_FILTER = "fzf:fzy:peco";
     };
 
     initContent = ''
+      #########################################################################
+      # IRIS (autocomplete/navigation context-aware)
+      # Deve stare per primo: "iris init zsh" fa "exec iris" nella shell non
+      # ancora figlia di iris, sostituendo il processo. Tutto quello che sta
+      # dopo in questo file non verrebbe mai eseguito in quella shell (né
+      # servirebbe: verrà rieseguito identico dalla shell reale che iris crea
+      # al suo posto). Mettendolo prima di tutto evitiamo di far girare due
+      # volte roba come il p10k instant prompt (che si lamenterebbe di non
+      # essere stato "chiuso" correttamente) o il tmux autostart.
+      #########################################################################
+      eval "$(iris init zsh)"
+
       #########################################################################
       # NIXOS BANNER
       #########################################################################
