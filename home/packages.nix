@@ -67,7 +67,7 @@
 
     # Varie
     xdg-utils
-    spotify
+    fastfetch
 
     # AI
     claude-code

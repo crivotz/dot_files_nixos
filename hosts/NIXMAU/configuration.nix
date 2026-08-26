@@ -287,6 +287,7 @@
     system-config-printer
     ghostty
     anydesk
+    spotify
   ];
 
   # Italian keyboard layout; second variant "nodeadkeys" gives a US-style layout as an alt.
