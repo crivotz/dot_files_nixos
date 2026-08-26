@@ -8,8 +8,8 @@ in
     ./programs/neovim.nix
     ./programs/tmux.nix
     ./programs/git.nix
-    # ./programs/sway.nix
-    ./programs/hyprland.nix
+    # ./programs/sway-laptop.nix
+    ./programs/hyprland-laptop.nix
     ./programs/hypridle.nix
     ./packages.nix
     ./services/syncthing.nix

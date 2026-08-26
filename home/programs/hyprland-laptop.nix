@@ -232,7 +232,7 @@ in
         # Azioni sistema
         "SUPER, RETURN, exec, ghostty"
         "SUPER, N, exec, nautilus"
-        "SUPER, C, exec, google-chrome"
+        "SUPER, C, exec, brave"
         "SUPER SHIFT, Q, killactive,"
         "SUPER SHIFT, C, exec, hyprctl reload"
         "SUPER SHIFT, E, exit,"
