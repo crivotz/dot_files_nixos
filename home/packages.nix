@@ -29,6 +29,7 @@
     duf
 
     # Dev tools
+    cloc
     lazygit
     lazydocker
     gh           # GitHub CLI

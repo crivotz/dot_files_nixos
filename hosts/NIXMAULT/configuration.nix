@@ -312,7 +312,7 @@
   nix = {
     settings = {
       experimental-features = [ "nix-command" "flakes" ];
-      trusted-users = [ "root" ];
+      trusted-users = [ "root" "mauro" ];
       # Binary caches for nixpkgs, devenv, and nix-community (neovim nightly, etc.).
       substituters = [
         "https://cache.nixos.org"
