@@ -328,6 +328,12 @@
     };
   };
 
+  # NixOS ships /bin/sh but not /bin/bash; some third-party scripts hardcode #!/bin/bash.
+  system.activationScripts.binbash = {
+    text = "ln -sf ${pkgs.bash}/bin/bash /bin/bash";
+    deps = [ ];
+  };
+
   system.activationScripts.gdm-faces = {
     text = ''
       for user in mauro andrea laura; do

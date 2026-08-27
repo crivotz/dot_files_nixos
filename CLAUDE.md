@@ -61,6 +61,7 @@ devenv-example/devenv.nix              # copy-paste template for Ruby on Rails p
 `home.activation.syncPrivate` clones (first run) or `git pull --ff-only` (subsequent runs):
 - `crivotz/nubem_dot_files` → `~/.nubem_dot_files` (private: gitconfig, zsh_aliases, nubem_env, tmuxp)
 - `crivotz/nv-ide` → `~/.nv-ide` (Neovim/LazyVim config)
+- `crivotz/gcheck` → `~/.gcheck`
 
 All other dotfiles (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, claude statusline) live in `config/` inside this repo and are symlinked via `home.file`.
 

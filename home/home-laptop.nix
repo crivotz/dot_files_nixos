@@ -36,6 +36,7 @@ in
     }
     sync nubem_dot_files "$HOME/.nubem_dot_files"
     sync nv-ide          "$HOME/.nv-ide"
+    sync gcheck          "$HOME/.gcheck"
     if [ ! -L "$HOME/.config/nvim" ]; then
       $DRY_RUN_CMD rm -rf "$HOME/.config/nvim"
       $DRY_RUN_CMD ln -s "$HOME/.nv-ide" "$HOME/.config/nvim"
@@ -43,6 +44,14 @@ in
     if [ ! -L "$HOME/.config/tmuxp" ]; then
       $DRY_RUN_CMD rm -rf "$HOME/.config/tmuxp"
       $DRY_RUN_CMD ln -s "$HOME/.nubem_dot_files/tmuxp" "$HOME/.config/tmuxp"
+    fi
+    if [ ! -L "$HOME/.config/gcheck" ]; then
+      $DRY_RUN_CMD rm -rf "$HOME/.config/gcheck"
+      $DRY_RUN_CMD ln -s "$HOME/.nubem_dot_files/gcheck" "$HOME/.config/gcheck"
+    fi
+    $DRY_RUN_CMD mkdir -p "$HOME/.local/bin"
+    if [ ! -L "$HOME/.local/bin/gcheck" ]; then
+      $DRY_RUN_CMD ln -sf "$HOME/.gcheck/gcheck.sh" "$HOME/.local/bin/gcheck"
     fi
   '';
 
@@ -77,7 +86,7 @@ in
     ".gitconfig".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/gitconfig_laptop_nixos";
     ".zsh_aliases".source    = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/zsh_aliases";
     ".nubem_env".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/nubem_env";
-    # ~/.config/nvim and ~/.config/tmuxp symlinks are created by the activation script above
+    # ~/.config/nvim, ~/.config/tmuxp and ~/.config/gcheck symlinks are created by the activation script above
   };
 
   # Automatically loads/unloads the Nix dev environment defined in .envrc when entering a project dir.
