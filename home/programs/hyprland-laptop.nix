@@ -113,13 +113,13 @@ in
       # nome porta — un nome porta (DP-3/4/5) può finire su un monitor diverso
       # da quello previsto appena cambia cosa è collegato o l'ordine di attacco.
       #
-      # Solo il Philips è configurato ora (è quello attualmente collegato). Le
-      # altre 2 postazioni fisse in ufficio (DELL portrait + terzo monitor)
-      # vanno ripristinate allo stesso modo leggendone il `desc:` da lì.
+      # Postazione ufficio: Philips + 2x Dell P2017H + Dell 1909W in portrait,
+      # tutti matchati per identità (desc) invece che per nome porta.
       monitor = [
         "desc:Philips Consumer Electronics Company PHL 223V5 UK01737032877,preferred,auto,1"
-        # "desc:<marca modello seriale DELL portrait>,1440x900@60,0x0,1,transform,1"
-        # "desc:<marca modello seriale terzo monitor>,1600x900@60,auto,1"
+        "desc:Dell Inc. DELL 1909W 0VHT607PCT0U,1440x900@60,0x0,1,transform,1"
+        "desc:Dell Inc. DELL P2017H T1XJV64G0M3T,1600x900@60,900x0,1"
+        "desc:Dell Inc. DELL P2017H T1XJV64G0EST,1600x900@60,2500x0,1"
 
         # Fallback per qualunque monitor non riconosciuto sopra (es. da cliente): auto.
         ",preferred,auto,1"
