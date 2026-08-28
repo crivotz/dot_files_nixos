@@ -58,6 +58,17 @@
           })
         ];
       };
+      # Grants netwatch raw-socket capabilities via a setcap wrapper in /run/wrappers/bin
+      # (which precedes the home-manager profile in PATH), since it's a home.packages
+      # entry and can't otherwise open packet-capture sockets as a regular user.
+      netwatchWrapperModule = { pkgs, ... }: {
+        security.wrappers.netwatch = {
+          owner = "root";
+          group = "root";
+          capabilities = "cap_net_raw,cap_net_admin+ep";
+          source = "${pkgs.netwatch}/bin/netwatch";
+        };
+      };
     in
     {
       # Laptop (NIXMAULT)
@@ -65,6 +76,7 @@
         inherit system;
         modules = [
           nixpkgsModule
+          netwatchWrapperModule
           ./hosts/NIXMAULT/configuration.nix
           dms.nixosModules.default
           dms.nixosModules.greeter
@@ -89,6 +101,7 @@
         inherit system;
         modules = [
           nixpkgsModule
+          netwatchWrapperModule
           ./hosts/NIXMAU/configuration.nix
           dms.nixosModules.default
           dms.nixosModules.greeter

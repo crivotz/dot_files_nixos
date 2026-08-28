@@ -52,6 +52,7 @@
     nmap
     net-tools
     netwatch
+    libpcap
 
     # Wayland tools
     wdisplays
