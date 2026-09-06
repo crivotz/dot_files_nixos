@@ -20,7 +20,7 @@
   };
 
   # Display manager: dms-greeter (DankMaterialShell) remembers the last session per user by default.
-  programs.dank-material-shell.greeter = {
+  programs.dms-greeter = {
     enable = true;
     compositor.name = "hyprland";
     configHome = "/home/mauro";

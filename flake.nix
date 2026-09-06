@@ -12,9 +12,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # DankMaterialShell — Sway shell/widget layer used for the bar, greeter, and IPC keybindings.
+    # DankMaterialShell — Sway shell/widget layer used for the bar and IPC keybindings.
     dms = {
       url = "github:AvengeMedia/DankMaterialShell/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # dms-greeter moved out of the dms flake into its own repo.
+    dank-greeter = {
+      url = "github:AvengeMedia/dank-greeter";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -29,7 +35,7 @@
     iris.url = "github:versenilvis/iris/main";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, dms, copilot-cli-flake, zen-browser, iris, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, dms, dank-greeter, copilot-cli-flake, zen-browser, iris, ... }:
     let
       system = "x86_64-linux";
       pkgsUnstable = import nixpkgs-unstable {
@@ -79,7 +85,7 @@
           netwatchWrapperModule
           ./hosts/NIXMAULT/configuration.nix
           dms.nixosModules.default
-          dms.nixosModules.greeter
+          dank-greeter.nixosModules.default
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {
@@ -104,7 +110,7 @@
           netwatchWrapperModule
           ./hosts/NIXMAU/configuration.nix
           dms.nixosModules.default
-          dms.nixosModules.greeter
+          dank-greeter.nixosModules.default
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {
