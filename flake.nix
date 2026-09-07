@@ -77,6 +77,25 @@
       };
     in
     {
+      # Standalone Home Manager profile for a non-NixOS (Debian) machine: `nix` runs as a
+      # regular package manager on top of apt, no nixosConfigurations/system integration.
+      # Only for tools that are missing or outdated on apt — see home/packages-debian.nix.
+      homeConfigurations."mauro@debian" = home-manager.lib.homeManagerConfiguration {
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [
+            (final: prev: {
+              iris = iris.packages.${system}.default.overrideAttrs (old: {
+                vendorHash = "sha256-huyTWK6ef42KY2zmFIQuFoeR8B8XKHE7OVfFnfefeCU=";
+              });
+            })
+          ];
+        };
+        extraSpecialArgs = { stateVersion = "26.05"; };
+        modules = [ ./home/home-debian.nix ];
+      };
+
       # Laptop (NIXMAULT)
       nixosConfigurations.NIXMAULT = nixpkgs.lib.nixosSystem {
         inherit system;
