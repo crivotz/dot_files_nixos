@@ -87,11 +87,18 @@ in
   # Force-overwrite hyprland.conf se esiste già come file non gestito da HM.
   xdg.configFile."hypr/hyprland.conf".force = true;
 
-  # monitors-dynamic.conf (sourced sotto) è scritto a runtime da hyprLidSync: deve
-  # esistere già alla primissima apertura di Hyprland, prima che il watcher parta.
+  # monitors-dynamic.conf (sourced sotto) è scritto a runtime da hyprLidSync e viene
+  # applicato da Hyprland in modo sincrono al parsing del config, PRIMA che l'exec-once
+  # di hyprLidWatch possa risincronizzarlo con lo stato reale di coperchio/monitor
+  # esterni. Un "disable" lasciato lì da una sessione precedente (es. ufficio, coperchio
+  # chiuso) sopravvivrebbe quindi a un riavvio a freddo altrove, spegnendo l'unico
+  # monitor del portatile prima ancora che lo script possa correggerlo (e mandando in
+  # crash dms/quickshell per assenza di output). Per questo il default sicuro va
+  # riscritto ad ogni activation, non solo se il file manca: hyprLidSync lo
+  # ricalcolerà comunque correttamente non appena Hyprland è avviato.
   home.activation.hyprLidState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p "$HOME/.local/state/hypr"
-    [ -f "$HOME/.local/state/hypr/monitors-dynamic.conf" ] || echo 'monitor = eDP-1,preferred,auto,1' > "$HOME/.local/state/hypr/monitors-dynamic.conf"
+    echo 'monitor = eDP-1,preferred,auto,1' > "$HOME/.local/state/hypr/monitors-dynamic.conf"
   '';
 
   wayland.windowManager.hyprland = {
