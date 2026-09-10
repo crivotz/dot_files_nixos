@@ -29,6 +29,8 @@
     duf
 
     # Dev tools
+    python3
+    hyprpicker
     cloc
     lazygit
     lazydocker
