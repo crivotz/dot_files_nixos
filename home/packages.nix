@@ -73,6 +73,7 @@
     # Varie
     xdg-utils
     fastfetch
+    libheif        # heif-convert
 
     # AI
     claude-code
