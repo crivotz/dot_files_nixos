@@ -32,10 +32,18 @@
     };
 
     # IRIS — CLI autocomplete/navigation tool (https://github.com/versenilvis/IRIS)
-    iris.url = "github:versenilvis/iris/main";
+    iris = {
+      url = "github:versenilvis/iris/main";
+    };
+
+    # Better nix-tree
+    nix-graph = {
+      url = "github:AlexAntonik/nix-graph";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, dms, dank-greeter, copilot-cli-flake, zen-browser, iris, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, dms, dank-greeter, copilot-cli-flake, zen-browser, iris, nix-graph, ... }:
     let
       system = "x86_64-linux";
       pkgsUnstable = import nixpkgs-unstable {
@@ -61,6 +69,7 @@
             iris = iris.packages.${system}.default.overrideAttrs (old: {
               vendorHash = "sha256-huyTWK6ef42KY2zmFIQuFoeR8B8XKHE7OVfFnfefeCU=";
             });
+            nix-graph = nix-graph.packages.${system}.nix-graph;
           })
         ];
       };

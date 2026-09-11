@@ -10,6 +10,7 @@
     croc
     graphviz
     plocate
+    nix-graph      # nix-tree migliore
     jq             # richiesto da core/claude/statusline.sh
     gnupg
     gnumake
