@@ -81,6 +81,6 @@
     github-copilot-cli
 
     # Shell autocomplete/navigation
-    iris
+    # iris
   ];
 }

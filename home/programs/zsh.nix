@@ -21,12 +21,11 @@
         src = pkgs.zsh-fzf-tab;
         file = "share/fzf-tab/fzf-tab.plugin.zsh";
       }
-      # Disabilitato: sovrapposizione con i suggerimenti di IRIS (eval "$(iris init zsh)")
-      # {
-      #   name = "zsh-autosuggestions";
-      #   src = pkgs.zsh-autosuggestions;
-      #   file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
-      # }
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.zsh-autosuggestions;
+        file = "share/zsh-autosuggestions/zsh-autosuggestions.zsh";
+      }
       {
         name = "zsh-fast-syntax-highlighting";
         src = pkgs.zsh-fast-syntax-highlighting;
@@ -73,7 +72,7 @@
       LC_ALL = "it_IT.UTF-8";
       BAT_THEME = "tokyonight_night";
       GOPATH = "$HOME/Dev/go";
-      # ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20"; # zsh-autosuggestions disabilitato (vedi plugins), sostituito da IRIS
+      ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE = "20";
       ENHANCD_FILTER = "fzf:fzy:peco";
     };
 
@@ -88,7 +87,7 @@
       # volte roba come il p10k instant prompt (che si lamenterebbe di non
       # essere stato "chiuso" correttamente) o il tmux autostart.
       #########################################################################
-      eval "$(iris init zsh)"
+      # eval "$(iris init zsh)"
 
       #########################################################################
       # NIXOS BANNER
