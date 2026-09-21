@@ -239,9 +239,9 @@
 
   # Lascia che Hyprland gestisca il lid switch via bindl (switch:on/off:Lid Switch).
   # Senza questo, logind sospende il sistema prima che Hyprland possa disabilitare eDP-1.
-  services.logind = {
-    lidSwitch = "ignore";
-    lidSwitchExternalPower = "ignore";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
   };
 
   # Polkit is required by 1Password GUI and various Wayland/system tools.
