@@ -31,6 +31,20 @@
   # Unlock the GNOME keyring on login via greetd PAM.
   security.pam.services.greetd.enableGnomeKeyring = true;
 
+  # gnome-shell's lock screen hardcodes the PAM service name "gdm-password" to authenticate
+  # unlocking, regardless of which display manager started the session. Since we use
+  # dms-greeter (not GDM), that PAM file doesn't exist and unlocking fails. This mirrors
+  # exactly what NixOS's gdm module generates for that service, so the GNOME session's
+  # screen lock works the same way it would under real GDM.
+  security.pam.services.gdm-password = {
+    text = ''
+      auth substack login
+      account include login
+      password substack login
+      session include login
+    '';
+  };
+
   # Hyprland — available as an alternative session alongside Sway.
   programs.hyprland = {
     enable = true;
