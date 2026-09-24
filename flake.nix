@@ -70,6 +70,15 @@
               vendorHash = "sha256-huyTWK6ef42KY2zmFIQuFoeR8B8XKHE7OVfFnfefeCU=";
             });
             nix-graph = nix-graph.packages.${system}.nix-graph;
+            # Bundled onig (in 3rdparty/edbee-lib) fails to build against newer GCC's
+            # stricter C23-by-default dialect ("too many arguments to function" on
+            # old K&R-style ANYARGS callbacks). Force gnu17 for C sources only
+            # (CMAKE_C_FLAGS, not NIX_CFLAGS_COMPILE, so C++ sources are unaffected).
+            mudlet = prev.mudlet.overrideAttrs (old: {
+              cmakeFlags = (old.cmakeFlags or [ ]) ++ [
+                "-DCMAKE_C_FLAGS=-std=gnu17 -Wno-error=implicit-function-declaration -Wno-error=incompatible-pointer-types"
+              ];
+            });
           })
         ];
       };

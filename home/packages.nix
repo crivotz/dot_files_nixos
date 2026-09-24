@@ -82,5 +82,7 @@
 
     # Shell autocomplete/navigation
     # iris
+    blightmud
+    mudlet
   ];
 }
