@@ -251,11 +251,16 @@
   # power-profiles-daemon switches between power-saver/balanced/performance on D-Bus.
   services.power-profiles-daemon.enable = true;
 
-  # Lascia che Hyprland gestisca il lid switch via bindl (switch:on/off:Lid Switch).
-  # Senza questo, logind sospende il sistema prima che Hyprland possa disabilitare eDP-1.
+  # Sospensione alla chiusura del coperchio gestita nativamente da systemd-logind, che
+  # rileva da sé lo stato "docked" (monitor esterno attivo su /sys/class/drm) e in quel
+  # caso ignora l'evento. In precedenza questa logica era delegata a uno script custom
+  # in Hyprland (bindl switch:on/off:Lid Switch + polling DRM/hyprctl), rimosso perché
+  # fragile: in alcuni casi la sospensione non partiva affatto, lasciando il portatile
+  # acceso e surriscaldato a coperchio chiuso.
   services.logind.settings.Login = {
-    HandleLidSwitch = "ignore";
-    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+    HandleLidSwitchDocked = "ignore";
   };
 
   # Polkit is required by 1Password GUI and various Wayland/system tools.

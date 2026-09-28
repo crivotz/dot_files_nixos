@@ -1,8 +1,14 @@
 { pkgs, lib, ... }:
 let
-  # Sincronizza lo stato di eDP-1 (attivo/disabilitato) in base a coperchio + monitor
-  # esterni rilevati via /sys/class/drm — non tramite `hyprctl monitors`, che a volte
-  # non ha ancora negoziato i monitor esterni nei primi secondi dopo l'avvio.
+  # Attiva/disattiva eDP-1 in base al coperchio, ma SOLO se esiste già un altro
+  # monitor davvero attivo secondo Hyprland (dock) — altrimenti si rischia di
+  # restare senza nessun output (dms crasha con "no outputs"). La sospensione
+  # vera e propria alla chiusura del coperchio (incluso il rilevamento "docked",
+  # per non sospendere quando c'è un monitor esterno) è gestita nativamente da
+  # systemd-logind (services.logind.settings.Login in hosts/NIXMAULT/configuration.nix),
+  # non da questo script: prima la si delegava a Hyprland via bindl + polling
+  # DRM/hyprctl, ma la sospensione a volte non partiva affatto, lasciando il
+  # portatile acceso e surriscaldato a coperchio chiuso.
   # Lo stato desiderato viene scritto in monitors-dynamic.conf (sourced dal config
   # sotto) e applicato con `hyprctl reload`, così sopravvive a reload successivi
   # (es. innescati da dms/matugen), a differenza di un semplice `hyprctl keyword`.
@@ -13,17 +19,6 @@ let
     DYNAMIC_CONF="$STATE_DIR/monitors-dynamic.conf"
     mkdir -p "$STATE_DIR"
 
-    external_connected() {
-      for status in /sys/class/drm/card*-*/status; do
-        [ -e "$status" ] || continue
-        case "$status" in
-          *-eDP-*) continue ;;
-        esac
-        [ "$(cat "$status")" = "connected" ] && return 0
-      done
-      return 1
-    }
-
     lid_closed() {
       for state in /proc/acpi/button/lid/*/state; do
         [ -r "$state" ] || continue
@@ -32,16 +27,11 @@ let
       return 1
     }
 
-    # Un output "connected" in /sys/class/drm è solo un rilevamento elettrico:
-    # non garantisce che Hyprland lo abbia già negoziato e attivato. Prima di
-    # spegnere eDP-1 verifichiamo che esista già un altro monitor DAVVERO
-    # attivo secondo Hyprland stesso — altrimenti si rischia di restare senza
-    # nessun output (dms crasha con "no outputs" e la sessione si blocca).
     other_monitor_active() {
       hyprctl monitors 2>/dev/null | grep '^Monitor' | grep -qv 'eDP-1'
     }
 
-    if lid_closed && external_connected && other_monitor_active; then
+    if lid_closed && other_monitor_active; then
       desired='monitor = eDP-1,disable'
     else
       desired='monitor = eDP-1,preferred,auto,1'
@@ -63,15 +53,6 @@ let
     fi
   '';
 
-  # Sospende il sistema alla chiusura del coperchio, ma solo se eDP-1 è rimasto lo
-  # stato desiderato (cioè NON c'è un monitor esterno che ha preso il suo posto).
-  # Va chiamato DOPO hyprLidSync, che scrive lo stato aggiornato in monitors-dynamic.conf.
-  hyprLidSuspendIfAlone = pkgs.writeShellScript "hypr-lid-suspend-if-alone" ''
-    set -uo pipefail
-    DYNAMIC_CONF="$HOME/.local/state/hypr/monitors-dynamic.conf"
-    grep -q disable "$DYNAMIC_CONF" 2>/dev/null || systemctl suspend
-  '';
-
   # Sync iniziale + ascolto eventi Hyprland (monitor aggiunto/rimosso) al posto di
   # un timeout fisso: reagisce a quando i monitor esterni compaiono davvero,
   # con qualche re-sync ritardato per assorbire negoziazioni lente (dock/hub).
@@ -79,7 +60,6 @@ let
     set -uo pipefail
 
     ${hyprLidSync}
-    touch /tmp/hypr-monitor-init-done
 
     SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 
@@ -202,16 +182,12 @@ in
 
       # dms viene avviato dal suo servizio systemd (programs.dms-shell.systemd.enable = true).
       "exec-once" = [
-        "rm -f /tmp/hypr-monitor-init-done"
         "syncthing serve --no-browser --logfile=default"
         "wl-paste --watch cliphist store"
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
         # Sincronizza subito lo stato di eDP-1 in base al coperchio, poi resta in
         # ascolto per ri-sincronizzare quando i monitor esterni compaiono/spariscono
-        # (vedi definizione di hyprLidWatch sopra). Il marker che crea evita che il
-        # bind switch:on:Lid Switch (che scatta anche per la risincronizzazione
-        # iniziale dello stato, non solo per una chiusura reale) richiami dms lock
-        # durante l'avvio, causando doppia richiesta password.
+        # (vedi definizione di hyprLidWatch sopra).
         "${hyprLidWatch}"
       ];
 
@@ -319,15 +295,12 @@ in
       bindl = [
         ", XF86AudioMute, exec, dms ipc call audio mute"
         # Lid switch: hyprLidSync applica/disapplica eDP-1 (idempotente, sopravvive a
-        # reload). Il lock va DOPO il sync per evitare che la sua surface finisca su
-        # un monitor che sta per spegnersi. Il guard sul marker ignora l'evento se lo
-        # script di avvio non ha ancora finito: Hyprland rilancia switch:on anche solo
-        # per risincronizzare lo stato corrente all'avvio, non solo per una chiusura
-        # reale, e senza questo guard chiederebbe la password due volte. Dopo il lock,
-        # sospende il sistema SOLO se non c'è un monitor esterno attivo a fare da display
-        # (altrimenti il coperchio chiuso col portatile in dock continuerebbe a sospendersi).
-        ", switch:on:Lid Switch, exec, bash -c '${hyprLidSync}; [ -f /tmp/hypr-monitor-init-done ] || exit 0; dms ipc call lock lock; ${hyprLidSuspendIfAlone}'"
-        ", switch:off:Lid Switch, exec, bash -c '[ -f /tmp/hypr-monitor-init-done ] || exit 0; ${hyprLidSync}'"
+        # reload) SOLO se un altro monitor è già attivo (dock), puramente per il layout
+        # degli output. La sospensione vera e propria (incluso il non-sospendere quando
+        # docked) è gestita da systemd-logind, non da qui — vedi hosts/NIXMAULT/configuration.nix.
+        # Il lock schermo prima di una sospensione reale lo fa già hypridle via before_sleep_cmd.
+        ", switch:on:Lid Switch, exec, ${hyprLidSync}"
+        ", switch:off:Lid Switch, exec, ${hyprLidSync}"
       ];
 
     };

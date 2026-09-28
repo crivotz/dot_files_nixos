@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-NixOS system configuration using Flakes + Home Manager. Manages two `x86_64-linux` hosts:
+NixOS system configuration using Flakes + Home Manager. Manages two `x86_64-linux` NixOS hosts:
 - **NIXMAU** — desktop
 - **NIXMAULT** — laptop
+
+A third, standalone (non-NixOS) Home Manager profile — `homeConfigurations."mauro@debian"` in `flake.nix`, built from `home/home-debian.nix` + `home/packages-debian.nix` — targets a Debian machine.
 
 ## Key commands
 
@@ -35,14 +37,15 @@ sudo nixos-rebuild dry-activate --flake .
 ## Architecture
 
 ```
-flake.nix                              # inputs + nixosConfigurations for NIXMAU and NIXMAULT
+flake.nix                              # inputs + nixosConfigurations for NIXMAU and NIXMAULT (+ standalone homeConfigurations."mauro@debian")
 hosts/NIXMAU/configuration.nix         # desktop: system-level config (boot, services, users, fonts)
 hosts/NIXMAULT/configuration.nix      # laptop: same structure, adds power management + backlight
 config/                                # dotfiles symlinked into $HOME via home.file (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, claude)
-home/home.nix                          # home-manager entry point for laptop
-home/home-desktop.nix                  # home-manager entry point for desktop
-home/packages.nix                      # user packages shared between both hosts
-home/programs/                         # per-program config; desktop variants use -desktop.nix suffix
+home/home-laptop.nix                   # home-manager entry point for laptop (NIXMAULT)
+home/home-desktop.nix                  # home-manager entry point for desktop (NIXMAU)
+home/home-debian.nix                   # standalone home-manager entry point for the Debian machine
+home/packages.nix                      # user packages shared between both NixOS hosts
+home/programs/                         # per-program config; desktop variants use -desktop.nix, laptop use -laptop.nix suffix
 home/services/syncthing.nix            # syncthing user service
 devenv-example/devenv.nix              # copy-paste template for Ruby on Rails projects
 ```
@@ -52,9 +55,13 @@ devenv-example/devenv.nix              # copy-paste template for Ruby on Rails p
 | Input | Purpose |
 |---|---|
 | `nixpkgs` (nixos-26.05 stable) | All packages |
+| `nixpkgs-unstable` | Cherry-picked packages not yet backported to stable |
 | `home-manager` | User-level config, follows nixpkgs |
-| `neovim-nightly-overlay` | Neovim nightly build |
-| `dms` (DankMaterialShell/stable) | Sway shell/widget layer + greeter |
+| `dms` (DankMaterialShell/stable) | Sway/Hyprland shell/widget layer (bar, IPC keybindings) |
+| `dank-greeter` | dms-greeter (split out of the `dms` flake into its own repo) |
+| `copilot-cli-flake`, `zen-browser`, `iris`, `nix-graph` | Individual package overlays (GitHub Copilot CLI, Zen Browser, IRIS CLI, nix-graph) |
+
+Neovim uses the plain `nixpkgs` package (no nightly overlay).
 
 ### Sibling repos auto-synced at rebuild
 
@@ -69,11 +76,12 @@ All other dotfiles (ghostty, lazygit, bat, eza, ruby, p10k, DankMaterialShell, c
 
 | Feature | NIXMAU (desktop) | NIXMAULT (laptop) |
 |---|---|---|
-| GNOME | enabled (for other users) | no |
+| GNOME | enabled (additional session) | enabled (additional session) |
 | Power profiles | no | `power-profiles-daemon` |
 | Backlight | DDC/CI via dms | `brightnessctl` |
-| Sway config | `sway-desktop.nix` | `sway.nix` |
-| Hyprland config | `hyprland-desktop.nix` | `hyprland.nix` |
+| Hyprland config | `hyprland-desktop.nix` | `hyprland-laptop.nix` |
+
+Sway is currently **disabled** on both hosts — `programs.sway` is commented out at the system level (`hosts/*/configuration.nix`) and the home-manager Sway modules (`home/programs/sway-desktop.nix`, `home/programs/sway-laptop.nix`) are commented out of the `imports` list in `home/home-desktop.nix` / `home/home-laptop.nix`. The files are kept as commented-out fallbacks, not actively maintained. Hyprland is the only compositor in use.
 
 ### LSP / Neovim
 
@@ -85,7 +93,7 @@ Mason is disabled. All LSPs and formatters are installed as Nix packages via `ex
 
 ## Display manager
 
-Both hosts use **dms-greeter** (`programs.dank-material-shell.greeter`, compositor default: `sway`). Built on greetd. Sway, Hyprland, and GNOME (desktop only) are all selectable as sessions at login.
+Both hosts use **dms-greeter** (`programs.dms-greeter`, `compositor.name = "hyprland"`). Built on greetd. Hyprland and GNOME are selectable as sessions at login on both hosts (Sway is disabled — see above).
 
 Check module API with: `nix flake show github:AvengeMedia/DankMaterialShell/stable`
 
@@ -100,4 +108,5 @@ These must be done manually after a fresh install:
 ## Hardware-specific notes
 
 - `hardware-configuration.nix` is machine-generated and read from `/etc/nixos/hardware-configuration.nix` (absolute path in `configuration.nix`), not in this repo.
-- Monitor output names (`eDP-1`, `DP-1`, etc.) are configured in the sway program files. Use `wdisplays` to identify them.
+- Monitor output names (`eDP-1`, `DP-1`, etc.) are configured in the Hyprland program files (`home/programs/hyprland-desktop.nix`, `home/programs/hyprland-laptop.nix`). Use `wdisplays` or `hyprctl monitors -j` to identify them.
+- **NIXMAULT lid-switch handling**: `services.logind.settings.Login.HandleLidSwitch = "ignore"` (both hosts) so logind never auto-suspends on lid close — this is delegated entirely to `home/programs/hyprland-laptop.nix`'s `bindl switch:on:Lid Switch`, which disables `eDP-1` and then calls `systemctl suspend` *only if* no external monitor is detected as active (so closing the lid while docked doesn't suspend). If suspend doesn't happen on lid close outside the office dock, check that logic first — `services.logind` shows the lid open/close events in `journalctl` even though it takes no action on them, which is useful for diagnosing whether the Hyprland-side suspend script actually ran.
