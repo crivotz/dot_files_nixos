@@ -54,8 +54,6 @@
     # Network / Remote
     nmap
     net-tools
-    netwatch
-    libpcap
 
     # Wayland tools
     wdisplays
@@ -80,8 +78,6 @@
     claude-code
     github-copilot-cli
 
-    # Shell autocomplete/navigation
-    # iris
     blightmud
     mudlet
   ];

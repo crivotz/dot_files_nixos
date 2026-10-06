@@ -27,7 +27,6 @@
     tmuxp
 
     # Own flake inputs / overlay — no apt equivalent
-    # iris
     claude-code
     github-copilot-cli
   ];

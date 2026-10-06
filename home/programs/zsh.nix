@@ -78,18 +78,6 @@
 
     initContent = ''
       #########################################################################
-      # IRIS (autocomplete/navigation context-aware)
-      # Deve stare per primo: "iris init zsh" fa "exec iris" nella shell non
-      # ancora figlia di iris, sostituendo il processo. Tutto quello che sta
-      # dopo in questo file non verrebbe mai eseguito in quella shell (né
-      # servirebbe: verrà rieseguito identico dalla shell reale che iris crea
-      # al suo posto). Mettendolo prima di tutto evitiamo di far girare due
-      # volte roba come il p10k instant prompt (che si lamenterebbe di non
-      # essere stato "chiuso" correttamente) o il tmux autostart.
-      #########################################################################
-      # eval "$(iris init zsh)"
-
-      #########################################################################
       # NIXOS BANNER
       #########################################################################
       print -P "%F{51}NixOS ''$(nixos-version | cut -d'.' -f1,2)%f"
