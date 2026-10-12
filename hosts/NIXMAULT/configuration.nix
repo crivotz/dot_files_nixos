@@ -303,7 +303,7 @@
     wl-clipboard
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
     brave
-    google-chrome
+    # google-chrome
     vlc
     xournalpp
     papirus-icon-theme
