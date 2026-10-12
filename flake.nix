@@ -29,9 +29,21 @@
       url = "github:AlexAntonik/nix-graph";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # FortiClient VPN (IPsec/SSL with SAML SSO) — https://github.com/jplana/forticlient-nixos
+    forticlient-nixos = {
+      url = "github:jplana/forticlient-nixos";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Nixdatifier — NixOS generations/flake-updates tray, Quickshell panel for Hyprland.
+    nixdatifier = {
+      url = "github:Muddyblack/nixdatifier";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, dms, dank-greeter, copilot-cli-flake, nix-graph, ... }:
+  outputs = { self, nixpkgs, home-manager, dms, dank-greeter, copilot-cli-flake, nix-graph, forticlient-nixos, nixdatifier, ... }:
     let
       system = "x86_64-linux";
       # Shared nixpkgs.* settings applied identically on both hosts, via the ordinary
@@ -44,6 +56,9 @@
           (final: prev: {
             github-copilot-cli = copilot-cli-flake.packages.${system}.default;
             nix-graph = nix-graph.packages.${system}.nix-graph;
+            # Self-contained wrapper (tray icon + Quickshell popup/pill), run via
+            # exec-once in hyprland-laptop.nix/hyprland-desktop.nix.
+            nixdatifier-hyprland = nixdatifier.packages.${system}.hyprland;
             # Bundled onig (in 3rdparty/edbee-lib) fails to build against newer GCC's
             # stricter C23-by-default dialect ("too many arguments to function" on
             # old K&R-style ANYARGS callbacks). Force gnu17 for C sources only
@@ -78,6 +93,7 @@
           ./hosts/NIXMAULT/configuration.nix
           dms.nixosModules.default
           dank-greeter.nixosModules.default
+          forticlient-nixos.nixosModules.forticlient
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {
@@ -102,6 +118,7 @@
           ./hosts/NIXMAU/configuration.nix
           dms.nixosModules.default
           dank-greeter.nixosModules.default
+          forticlient-nixos.nixosModules.forticlient
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {

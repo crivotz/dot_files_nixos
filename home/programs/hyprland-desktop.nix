@@ -79,6 +79,11 @@
         "syncthing serve --no-browser --logfile=default"
         "wl-paste --watch cliphist store"
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+        # Hyprland doesn't honour XDG autostart (services.forticlient.trayAutostart's
+        # /etc/xdg/autostart entry), so the SAML-SSO tray needs an explicit exec-once.
+        "forticlient-tray"
+        # Nixdatifier: tray icon + Quickshell popup/pill (generazioni, update flake, store Nix).
+        "nixdatifier-hyprland"
       ];
 
       bind = [

@@ -11,6 +11,7 @@
     graphviz
     plocate
     nix-graph      # nix-tree migliore
+    nixdatifier-hyprland  # tray + pannello Quickshell: generazioni, diff pacchetti, update flake
     jq             # richiesto da core/claude/statusline.sh
     gnupg
     gnumake
