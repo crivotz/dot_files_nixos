@@ -111,6 +111,26 @@
         "type": "github"
       }
     },
+    "forticlient-nixos": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781855918,
+        "narHash": "sha256-ethk92yiBxhf4YvMmBMxmWDjhMXny3IwbYhR+UxTdrw=",
+        "owner": "jplana",
+        "repo": "forticlient-nixos",
+        "rev": "e1c170ec952ddae24142684369674ec762f1eaa5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jplana",
+        "repo": "forticlient-nixos",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -152,6 +172,26 @@
         "type": "github"
       }
     },
+    "nixdatifier": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791793268,
+        "narHash": "sha256-BrSu82uFGHq+0eTmGOFaiPrUKAM+dr4kdTNFaKx7HiM=",
+        "owner": "Muddyblack",
+        "repo": "nixdatifier",
+        "rev": "332d0c3230f8a1fec5044b5e90fcb231f248e065",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Muddyblack",
+        "repo": "nixdatifier",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1791456040,
@@ -189,8 +229,10 @@
         "copilot-cli-flake": "copilot-cli-flake",
         "dank-greeter": "dank-greeter",
         "dms": "dms",
+        "forticlient-nixos": "forticlient-nixos",
         "home-manager": "home-manager",
         "nix-graph": "nix-graph",
+        "nixdatifier": "nixdatifier",
         "nixpkgs": "nixpkgs_2"
       }
     }

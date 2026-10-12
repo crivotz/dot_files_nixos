@@ -82,8 +82,8 @@
         # Hyprland doesn't honour XDG autostart (services.forticlient.trayAutostart's
         # /etc/xdg/autostart entry), so the SAML-SSO tray needs an explicit exec-once.
         "forticlient-tray"
-        # Nixdatifier: tray icon + Quickshell popup/pill (generazioni, update flake, store Nix).
-        "nixdatifier-hyprland"
+        # Nixdatifier: app standalone + tray icon (generazioni, update flake, store Nix).
+        "nixdatifier --autostart"
       ];
 
       bind = [
