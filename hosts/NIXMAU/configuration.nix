@@ -130,6 +130,11 @@
   services.forticlient = {
     enable = true;
     gnomeKeyring.pamServices = [ "login" "greetd" ];
+    # nixpkgs split libgbm.so.1 out of `mesa` into its own `pkgs.libgbm` derivation
+    # (pname mesa-libgbm); the module's baseLibraries list still only has `mesa`,
+    # so without this the Electron GUI fails with "libgbm.so.1: cannot open shared
+    # object file".
+    extraLibraries = [ pkgs.libgbm ];
   };
 
   # AnyDesk: remote desktop daemon (unattended access).
