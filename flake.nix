@@ -30,12 +30,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # FortiClient VPN (IPsec/SSL with SAML SSO) — https://github.com/jplana/forticlient-nixos
-    forticlient-nixos = {
-      url = "github:jplana/forticlient-nixos";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Nixdatifier — NixOS generations/flake-updates tray, standalone app (window + tray icon).
     nixdatifier = {
       url = "github:Muddyblack/nixdatifier";
@@ -43,7 +37,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, dms, dank-greeter, copilot-cli-flake, nix-graph, forticlient-nixos, nixdatifier, ... }:
+  outputs = { self, nixpkgs, home-manager, dms, dank-greeter, copilot-cli-flake, nix-graph, nixdatifier, ... }:
     let
       system = "x86_64-linux";
       # Shared nixpkgs.* settings applied identically on both hosts, via the ordinary
@@ -93,7 +87,6 @@
           ./hosts/NIXMAULT/configuration.nix
           dms.nixosModules.default
           dank-greeter.nixosModules.default
-          forticlient-nixos.nixosModules.forticlient
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {
@@ -118,7 +111,6 @@
           ./hosts/NIXMAU/configuration.nix
           dms.nixosModules.default
           dank-greeter.nixosModules.default
-          forticlient-nixos.nixosModules.forticlient
           home-manager.nixosModules.home-manager
           ({ pkgs, ... }: {
             home-manager = {

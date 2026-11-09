@@ -122,21 +122,6 @@
   services.blueman.enable = true;
   services.upower.enable = true;
 
-  # FortiClient VPN (IPsec/SSL with SAML SSO) — https://github.com/jplana/forticlient-nixos
-  # gnome-keyring itself and its greetd PAM unlock are already configured above
-  # (services.gnome.gnome-keyring.enable / security.pam.services.greetd.enableGnomeKeyring),
-  # so this only needs to point the module's own keyring wiring at the same "greetd" PAM
-  # service — it's a harmless duplicate of the enableGnomeKeyring = true set above.
-  services.forticlient = {
-    enable = true;
-    gnomeKeyring.pamServices = [ "login" "greetd" ];
-    # nixpkgs split libgbm.so.1 out of `mesa` into its own `pkgs.libgbm` derivation
-    # (pname mesa-libgbm); the module's baseLibraries list still only has `mesa`,
-    # so without this the Electron GUI fails with "libgbm.so.1: cannot open shared
-    # object file".
-    extraLibraries = [ pkgs.libgbm ];
-  };
-
   # AnyDesk: remote desktop daemon (unattended access).
   # No NixOS module exists for anydesk; run the daemon via a plain systemd service.
   systemd.services.anydesk = {
@@ -319,6 +304,7 @@
     pamixer             # PulseAudio/PipeWire volume control (used by keybindings)
     brave
     # google-chrome
+    openfortivpn
     vlc
     xournalpp
     papirus-icon-theme
