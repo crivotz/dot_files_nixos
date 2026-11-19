@@ -2,6 +2,13 @@
 {
   wayland.windowManager.sway = {
     enable = true;
+    # SwayFX is a Sway fork that adds compositor eye-candy (blur, rounded corners, drop
+    # shadows, dim-inactive) on top of stock Sway/wlroots — config syntax is unchanged,
+    # see extraConfig below for the SwayFX-only directives.
+    package = pkgs.swayfx;
+    # The Nix build sandbox has no DRM/GPU device, so `sway --validate` (used by checkConfig)
+    # can't create a renderer and fails even on a correct config — disable the build-time check.
+    checkConfig = false;
     # GTK wrapper sets GTK_THEME and other env vars so GTK3/4 apps render correctly under Sway.
     wrapperFeatures.gtk = true;
     # Integrates Sway startup with the systemd user session (DBUS_SESSION_BUS_ADDRESS, etc.).
@@ -175,6 +182,8 @@
         { command = "wl-paste --watch cliphist store"; always = false; }
         # Polkit authentication agent: shows the password dialog for privileged operations.
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; always = false; }
+        # Nixdatifier: standalone app + tray icon (generazioni, update flake, store Nix).
+        { command = "nixdatifier --autostart"; always = false; }
       ];
 
       # Disable the built-in swaybar; DankMaterialShell provides its own bar via systemd.
@@ -193,6 +202,19 @@
     extraConfig = ''
       # 4px border gives a visible focus indicator without taking much screen space.
       default_border pixel 4
+
+      # --- SwayFX-only directives (ignored/unsupported by vanilla Sway) ---
+      corner_radius 8
+      blur enable
+      blur_xray disable
+      blur_passes 2
+      blur_radius 5
+      shadows enable
+      shadow_blur_radius 20
+      shadow_color #0000007f
+      default_dim_inactive 0.15
+      dim_inactive_colors.unfocused #00000050
+      # ---------------------------------------------------------------------
 
       # Include system-level sway drop-ins (e.g. from programs.sway.extraSessionCommands).
       include /etc/sway/config.d/*

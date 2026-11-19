@@ -2,6 +2,13 @@
 {
   wayland.windowManager.sway = {
     enable = true;
+    # SwayFX è un fork di Sway che aggiunge effetti al compositor (blur, angoli arrotondati,
+    # ombre, dim-inactive) sopra Sway/wlroots standard — la sintassi di config è la stessa,
+    # vedi le direttive SwayFX-only dentro extraConfig più sotto.
+    package = pkgs.swayfx;
+    # La sandbox di build non ha un device DRM/GPU, quindi `sway --validate` (usato da
+    # checkConfig) non riesce a creare un renderer e fallisce anche con una config corretta.
+    checkConfig = false;
     # wrapperFeatures.gtk = true per GTK3 apps (dialoghi file, etc.)
     wrapperFeatures.gtk = true;
     systemd.enable = true;
@@ -135,18 +142,27 @@
         };
       };
 
-      # Laptop monitor layout. Run `wdisplays` or `swaymsg -t get_outputs` to identify output names.
-      # Comment out external monitor entries if working without a dock.
+      # Laptop monitor layout. Il portatile viaggia (ufficio con monitor fissi, ma anche
+      # clienti con monitor sconosciuti), quindi il matching è per IDENTITÀ del monitor
+      # ("Make Model Serial", da `swaymsg -t get_outputs`) invece che per nome porta — un
+      # nome porta (DP-3/4/5) può finire su un monitor diverso da quello previsto appena
+      # cambia cosa è collegato o l'ordine di attacco. Mirror di hyprland-laptop.nix.
       output = {
-        "DP-3" = { pos = "0 0"; res = "1440x900"; transform = "270"; };
-        "DP-4" = { pos = "900 0"; res = "1600x900"; };
-        "DP-5" = { pos = "2500 0"; res = "1600x900"; };
+        "Dell Inc. DELL 1909W 0VHT607PCT0U" = { pos = "0 0"; res = "1440x900"; transform = "270"; };
+        "Dell Inc. DELL P2017H T1XJV64G0M3T" = { pos = "900 0"; res = "1600x900"; };
+        "Dell Inc. DELL P2017H T1XJV64G0EST" = { pos = "2500 0"; res = "1600x900"; };
+        # Monitor aggiunto dopo la migrazione a Hyprland: nessuna pos nota, lasciato
+        # auto-posizionato come in hyprland-laptop.nix ("auto").
+        "Philips Consumer Electronics Company PHL 223V5 UK01737032877" = { res = "preferred"; };
+        # Fallback per qualunque monitor non riconosciuto sopra (es. da cliente): auto.
+        "*" = { res = "preferred"; };
+        "eDP-1" = { res = "preferred"; };
       };
 
       workspaceOutputAssign = [
         { workspace = "1"; output = "eDP-1"; }
-        { workspace = "2"; output = "DP-4"; }
-        { workspace = "3"; output = "DP-5"; }
+        { workspace = "2"; output = "Dell Inc. DELL P2017H T1XJV64G0M3T"; }
+        { workspace = "3"; output = "Dell Inc. DELL P2017H T1XJV64G0EST"; }
       ];
 
       # Auto-assign apps to workspaces on first launch (app_id is the Wayland app-id).
@@ -174,6 +190,8 @@
         { command = "wl-paste --watch cliphist store"; always = false; }
         # Polkit authentication agent: shows the password dialog for privileged operations.
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; always = false; }
+        # Nixdatifier: standalone app + tray icon (generazioni, update flake, store Nix).
+        { command = "nixdatifier --autostart"; always = false; }
         # dms is started by its own systemd service (programs.dms-shell.systemd.enable = true).
         # For manual startup instead: { command = "dms run"; always = false; }
       ];
@@ -200,6 +218,19 @@
     extraConfig = ''
       # Bordi finestre
       default_border pixel 4
+
+      # --- Direttive solo-SwayFX (ignorate/non supportate dal Sway vanilla) ---
+      corner_radius 8
+      blur enable
+      blur_xray disable
+      blur_passes 2
+      blur_radius 5
+      shadows enable
+      shadow_blur_radius 20
+      shadow_color #0000007f
+      default_dim_inactive 0.15
+      dim_inactive_colors.unfocused #00000050
+      # -------------------------------------------------------------------------
 
       # Lid switch (laptop)
       set $laptop eDP-1

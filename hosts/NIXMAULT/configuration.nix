@@ -53,21 +53,24 @@
   };
 
   # Enables Sway system-wide with the GTK wrapper (needed for GTK file dialogs, app theming).
+  # Uses SwayFX (a Sway fork with compositor eye-candy: blur, rounded corners, drop shadows,
+  # dim-inactive) instead of vanilla Sway — see home/programs/sway-laptop.nix for the effects config.
   # Extra packages are Wayland utilities that don't fit in home.packages (they need system-level access).
-  # programs.sway = {
-  #   enable = true;
-  #   wrapperFeatures.gtk = true;
-  #   extraPackages = with pkgs; [
-  #     swaylock
-  #     swayidle
-  #     wdisplays   # GUI monitor layout tool (identify output names for sway output config)
-  #     grim        # Wayland screenshot
-  #     slurp       # Region selector (used by grimshot)
-  #     sway-contrib.grimshot
-  #     wl-clipboard
-  #     cliphist    # Clipboard history daemon
-  #   ];
-  # };
+  programs.sway = {
+    enable = true;
+    package = pkgs.swayfx;
+    wrapperFeatures.gtk = true;
+    extraPackages = with pkgs; [
+      swaylock
+      swayidle
+      wdisplays   # GUI monitor layout tool (identify output names for sway output config)
+      grim        # Wayland screenshot
+      slurp       # Region selector (used by grimshot)
+      sway-contrib.grimshot
+      wl-clipboard
+      cliphist    # Clipboard history daemon
+    ];
+  };
 
   # DankMaterialShell — Sway shell/widget layer providing bar, spotlight, clipboard, and audio IPC.
   programs.dms-shell = {
@@ -83,11 +86,10 @@
     enableAudioWavelength = false;
   };
 
-  # XDG portals: hyprland per Hyprland, gtk per file picker.
-  # wlr.enable era per Sway (screen sharing) — commentato insieme a programs.sway.
+  # XDG portals: hyprland per Hyprland, gtk per file picker, wlr per Sway (screen sharing).
   xdg.portal = {
     enable = true;
-    # wlr.enable = true;
+    wlr.enable = true;
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
       pkgs.xdg-desktop-portal-hyprland

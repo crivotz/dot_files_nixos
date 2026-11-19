@@ -8,7 +8,7 @@ in
     ./programs/neovim.nix
     ./programs/tmux.nix
     ./programs/git.nix
-    # ./programs/sway-laptop.nix
+    ./programs/sway-laptop.nix
     ./programs/hyprland-laptop.nix
     ./programs/hypridle.nix
     ./packages.nix
