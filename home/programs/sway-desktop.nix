@@ -203,6 +203,13 @@
       # 4px border gives a visible focus indicator without taking much screen space.
       default_border pixel 4
 
+      # Border colors mirroring hyprland-desktop.nix's col.active_border/col.inactive_border.
+      # client.<class> <border> <background> <text> <indicator> <child_border>
+      client.focused          #7aa2f7ff #1a1b26ff #c0caf5ff #7aa2f7ff #7aa2f7ff
+      client.focused_inactive #595959aa #1a1b26ff #c0caf5ff #595959aa #595959aa
+      client.unfocused        #595959aa #1a1b26ff #c0caf5ff #595959aa #595959aa
+      client.urgent           #db4b4bff #1a1b26ff #c0caf5ff #db4b4bff #db4b4bff
+
       # --- SwayFX-only directives (ignored/unsupported by vanilla Sway) ---
       corner_radius 8
       blur enable
