@@ -27,9 +27,10 @@ gui:
     defaultFgColor:
       - "#c0caf5"
 git:
-  pagers:
-    - pager: delta --paging=never
-    - externalDiffCommand: difft --color=always
+  diffRenderers:
+    - command: delta --paging=never
+    - command: difft --color=always
+      type: extDiff
 customCommands:
   - key: 'I'
     command: "gh issue list"
