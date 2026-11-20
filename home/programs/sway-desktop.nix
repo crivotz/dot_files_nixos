@@ -91,6 +91,7 @@
           "${mod}+Shift+q" = "kill";
           "${mod}+Shift+c" = "reload";
           "${mod}+Shift+e" = "exec swaynag -t warning -m 'Uscire da Sway?' -B 'Sì' 'swaymsg exit'";
+          "${mod}+x" = "exec swaylock -c 1a1b26";
 
           # Applicazioni
           "${mod}+n" = "exec nautilus";
@@ -184,6 +185,8 @@
         { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; always = false; }
         # Nixdatifier: standalone app + tray icon (generazioni, update flake, store Nix).
         { command = "nixdatifier --autostart"; always = false; }
+        # Auto-lock dopo 5 min di inattività, spegne gli output dopo 6 min, rilocka prima di sospendere.
+        { command = ''swayidle -w timeout 300 'swaylock -f -c 1a1b26' timeout 360 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' before-sleep 'swaylock -f -c 1a1b26' ''; always = false; }
       ];
 
       # Disable the built-in swaybar; DankMaterialShell provides its own bar via systemd.
