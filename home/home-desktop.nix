@@ -87,6 +87,8 @@ in
     ".gitconfig".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/gitconfig_7040";
     ".zsh_aliases".source    = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/zsh_aliases";
     ".nubem_env".source      = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/nubem_env";
+    # SSH config (real hosts) lives in the private nubem_dot_files repo
+    ".ssh/config" = { source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.nubem_dot_files/ssh/config"; force = true; };
     # ~/.config/nvim, ~/.config/tmuxp and ~/.config/gcheck symlinks are created by the activation script above
   };
 
@@ -123,15 +125,6 @@ in
 
   # Allows `home-manager` CLI to manage itself without a NixOS integration.
   programs.home-manager.enable = true;
-
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-    settings."*" = {
-      AddKeysToAgent = "yes";
-      IdentityAgent = "~/.1password/agent.sock";
-    };
-  };
 
   # Automounts USB drives and removable media via udisks2 (system service abilitato in configuration.nix).
   services.udiskie.enable = true;

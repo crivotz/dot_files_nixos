@@ -153,11 +153,13 @@
         "Dell Inc. DELL P2017H T1XJV64G0M3T" = { pos = "900 0"; res = "1600x900"; };
         "Dell Inc. DELL P2017H T1XJV64G0EST" = { pos = "2500 0"; res = "1600x900"; };
         # Monitor aggiunto dopo la migrazione a Hyprland: nessuna pos nota, lasciato
-        # auto-posizionato come in hyprland-laptop.nix ("auto").
-        "Philips Consumer Electronics Company PHL 223V5 UK01737032877" = { res = "preferred"; };
+        # auto-posizionato come in hyprland-laptop.nix ("auto"). Nessuna direttiva res:
+        # "preferred" non è un valore valido per mode|resolution|res (vuole solo WxH),
+        # quindi si lascia l'output senza risoluzione esplicita così sway usa quella preferita.
+        "Philips Consumer Electronics Company PHL 223V5 UK01737032877" = { };
         # Fallback per qualunque monitor non riconosciuto sopra (es. da cliente): auto.
-        "*" = { res = "preferred"; };
-        "eDP-1" = { res = "preferred"; };
+        "*" = { };
+        "eDP-1" = { };
       };
 
       workspaceOutputAssign = [
